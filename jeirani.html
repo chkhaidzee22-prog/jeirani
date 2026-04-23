@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ჯეირანი</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+Georgian:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080808; --surface:#111; --border:#1e1e1e; --b2:#2a2a2a;
+  --red:#e63946; --gold:#c9a84c; --green:#4caf50;
+  --white:#f0ece4; --gray:#555; --gray2:#333;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  background:var(--bg); color:var(--white);
+  font-family:'Noto Sans Georgian',sans-serif;
+  min-height:100vh; display:flex; align-items:flex-start;
+  justify-content:center; padding:20px 16px 48px; overflow-x:hidden;
+}
+body::before{
+  content:''; position:fixed; inset:0;
+  background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(230,57,70,.07) 0%,transparent 60%);
+  pointer-events:none; z-index:0;
+}
+.wrap{width:100%;max-width:440px;position:relative;z-index:1;}
+.hdr{text-align:center;margin-bottom:36px;padding-top:8px;}
+.hdr-t{font-family:'Bebas Neue',cursive;font-size:68px;letter-spacing:8px;line-height:1;text-shadow:0 0 60px rgba(230,57,70,.25);}
+.hdr-s{font-size:11px;letter-spacing:5px;color:var(--gray);text-transform:uppercase;margin-top:4px;}
+.screen{display:none;}
+.screen.active{display:block;}
+.btn{
+  display:block;width:100%;padding:20px 16px;background:var(--red);border:none;color:white;
+  font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:3px;
+  cursor:pointer;transition:opacity .15s,transform .1s;text-align:center;
+}
+.btn:hover{opacity:.9;} .btn:active{transform:scale(.98);}
+.btn.ghost{background:transparent;border:1px solid var(--b2);color:var(--gray);font-size:14px;padding:14px;}
+.btn.ghost:hover{border-color:var(--gray);color:var(--white);}
+.btn.gold{background:var(--gold);}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px;}
+.mode-card{
+  background:var(--surface);border:1px solid var(--b2);
+  padding:28px 16px;text-align:center;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;
+}
+.mode-card::before{content:'';position:absolute;inset:0;background:var(--red);opacity:0;transition:opacity .15s;}
+.mode-card:hover::before{opacity:.06;} .mode-card:hover{border-color:var(--red);}
+.mode-icon{font-size:40px;display:block;margin-bottom:12px;}
+.mode-title{font-family:'Bebas Neue',cursive;font-size:26px;letter-spacing:2px;}
+.mode-desc{font-size:11px;color:var(--gray);margin-top:6px;letter-spacing:1px;}
+.mode-tgt{font-size:10px;color:var(--gold);margin-top:4px;letter-spacing:1px;}
+.div{display:flex;align-items:center;gap:12px;margin:24px 0;}
+.div-line{flex:1;height:1px;background:var(--border);}
+.div-txt{font-size:11px;color:var(--gray);letter-spacing:2px;text-transform:uppercase;}
+.inp{
+  width:100%;background:var(--surface);border:1px solid var(--b2);
+  color:var(--white);padding:14px 16px;font-family:'Noto Sans Georgian',sans-serif;
+  font-size:16px;outline:none;transition:border-color .15s;margin-bottom:10px;
+  text-align:center;letter-spacing:4px;text-transform:uppercase;
+}
+.inp:focus{border-color:var(--red);}
+.inp::placeholder{color:var(--gray);letter-spacing:2px;font-size:13px;}
+.lbl{font-size:10px;letter-spacing:3px;color:var(--gray);text-transform:uppercase;margin-bottom:8px;}
+.box{background:var(--surface);border:1px solid var(--b2);padding:20px;margin-bottom:16px;}
+.link-row{display:flex;gap:8px;align-items:flex-start;margin-top:10px;}
+.link-val{flex:1;font-size:12px;color:var(--gold);word-break:break-all;font-family:monospace;line-height:1.5;}
+.copy-btn{background:var(--b2);border:none;color:var(--white);padding:8px 14px;font-size:11px;cursor:pointer;white-space:nowrap;transition:background .15s;}
+.copy-btn:hover{background:#3a3a3a;} .copy-btn.done{background:#1a3a1a;color:var(--green);}
+.code-big{font-family:'Bebas Neue',cursive;font-size:52px;letter-spacing:12px;color:var(--gold);text-align:center;margin:16px 0 4px;}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
+.pill{background:var(--b2);padding:6px 14px;font-size:12px;letter-spacing:1px;border:1px solid var(--b2);}
+.pill.on{border-color:var(--green);color:var(--green);background:#0d1f0d;}
+.pill.off{color:var(--gray);animation:blink 1.2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.scores-bar{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap;}
+.sc{flex:1;min-width:0;background:var(--surface);border:1px solid var(--b2);padding:10px 8px;text-align:center;}
+.sc.me{border-color:var(--red);background:#1a0e0f;}
+.sc-n{font-size:10px;letter-spacing:1px;color:var(--gray);text-transform:uppercase;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sc-v{font-family:'Bebas Neue',cursive;font-size:36px;line-height:1;}
+.sc-t{font-size:10px;color:var(--gray);margin-top:2px;}
+.cd-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:28px;}
+.cd-svg{width:80px;height:80px;}
+.cd-bg{fill:none;stroke:var(--b2);stroke-width:4;}
+.cd-arc{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .08s linear;}
+.cd-num{font-family:'Bebas Neue',cursive;font-size:36px;fill:var(--white);text-anchor:middle;dominant-baseline:central;}
+.pk-lbl{font-size:12px;letter-spacing:3px;color:var(--gray);text-transform:uppercase;margin-top:10px;}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.cbtn{
+  aspect-ratio:1;background:var(--surface);border:1px solid var(--b2);
+  cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  transition:all .15s;position:relative;overflow:hidden;
+}
+.cbtn:hover{border-color:var(--red);background:#140b0c;}
+.cbtn.sel{border-color:var(--red);background:#1a0e0f;}
+.cbtn.sel::after{content:'';position:absolute;inset:0;background:var(--red);opacity:.07;}
+.cbtn.dis{opacity:.3;cursor:not-allowed;pointer-events:none;}
+.ch-e{font-size:38px;line-height:1;}
+.ch-l{font-size:10px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;}
+.cbtn:hover .ch-l,.cbtn.sel .ch-l{color:var(--white);}
+.rg{display:grid;gap:10px;margin-bottom:24px;}
+.rg.p2{grid-template-columns:1fr 1fr;}
+.rg.p4{grid-template-columns:1fr 1fr;}
+.rc{background:var(--surface);border:1px solid var(--b2);padding:16px 12px;text-align:center;position:relative;}
+.rc.rw{border-color:var(--gold);background:#1a1208;}
+.rc.me{border-color:var(--red);}
+.rc.rw.me{border-color:var(--gold);}
+.re{font-size:44px;line-height:1;margin-bottom:8px;}
+.rn{font-size:11px;letter-spacing:1px;color:var(--gray);}
+.rs{font-family:'Bebas Neue',cursive;font-size:28px;margin-top:4px;}
+.wb{position:absolute;top:6px;right:6px;background:var(--gold);color:#000;font-size:10px;padding:2px 7px;font-family:'Bebas Neue',cursive;}
+.rhl{font-family:'Bebas Neue',cursive;font-size:48px;letter-spacing:4px;text-align:center;margin-bottom:24px;line-height:1;}
+.rhl.win{color:var(--gold);text-shadow:0 0 30px rgba(201,168,76,.4);}
+.rhl.lose{color:var(--red);} .rhl.draw{color:var(--gray);} .rhl.neu{color:var(--white);}
+.status-box{background:var(--surface);border:1px solid var(--b2);padding:20px;text-align:center;margin-bottom:20px;}
+.pulse{display:inline-block;width:8px;height:8px;background:var(--red);border-radius:50%;margin-right:8px;animation:pa 1.4s infinite;vertical-align:middle;}
+@keyframes pa{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);padding:12px 22px;font-size:13px;letter-spacing:1px;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap;border:1px solid transparent;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div class="hdr-t">ᲯᲔᲘᲠᲐᲜᲘ</div>
+    <div class="hdr-s">Rock · Paper · Scissors</div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen active" id="screen-home">
+    <div class="lbl" style="text-align:center;margin-bottom:16px;">აირჩიე რეჟიმი</div>
+    <div class="mode-grid">
+      <div class="mode-card" onclick="selectMode(2)">
+        <span class="mode-icon">👥</span>
+        <div class="mode-title">1 vs 1</div>
+        <div class="mode-desc">ორი მოთამაშე</div>
+        <div class="mode-tgt">პირველი 10 გამარჯვება</div>
+      </div>
+      <div class="mode-card" onclick="selectMode(4)">
+        <span class="mode-icon">⚔️</span>
+        <div class="mode-title">4 მოთ.</div>
+        <div class="mode-desc">ყველა ყველას წინ</div>
+        <div class="mode-tgt">პირველი 5 გამარჯვება</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LOBBY -->
+  <div class="screen" id="screen-lobby">
+    <div class="box">
+      <div class="lbl">🔗 ლინკი</div>
+      <div class="link-row">
+        <div class="link-val" id="share-link">—</div>
+        <button class="copy-btn" id="copy-btn" onclick="copyLink()">კოპირება</button>
+      </div>
+    </div>
+    <div class="box">
+      <div class="lbl" style="text-align:center" id="lobby-count">0 / 0</div>
+    </div>
+    <div class="lbl">მოთამაშეები</div>
+    <div class="pills" id="pills"></div>
+  </div>
+
+  <!-- JOINING -->
+  <div class="screen" id="screen-joining">
+    <div class="status-box"><span class="pulse"></span><span style="font-size:14px;letter-spacing:2px;">დაკავშირება...</span></div>
+  </div>
+
+  <!-- GAME -->
+  <div class="screen" id="screen-game">
+    <div class="scores-bar" id="scores-bar"></div>
+    <div class="cd-wrap">
+      <svg class="cd-svg" viewBox="0 0 64 64">
+        <circle class="cd-bg" cx="32" cy="32" r="26"/>
+        <circle class="cd-arc" id="cd-arc" cx="32" cy="32" r="26" stroke-dasharray="163.4" stroke-dashoffset="0"/>
+        <text class="cd-num" id="cd-num" x="32" y="32">3</text>
+      </svg>
+      <div class="pk-lbl" id="pk-lbl">აირჩიე</div>
+    </div>
+    <div class="choices">
+      <button class="cbtn" id="btn-rock" onclick="pick('rock')"><div class="ch-e">✊🏿</div><div class="ch-l">კლდე</div></button>
+      <button class="cbtn" id="btn-paper" onclick="pick('paper')"><div class="ch-e">✋🏿</div><div class="ch-l">ქაღალდი</div></button>
+      <button class="cbtn" id="btn-scissors" onclick="pick('scissors')"><div class="ch-e">✌🏿</div><div class="ch-l">მაკრ.</div></button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="screen" id="screen-result">
+    <div class="rhl neu" id="rhl">—</div>
+    <div class="rg" id="rg"></div>
+    <button class="btn gold" id="pab" onclick="location.reload()" style="display:none">ახალი თამაში</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+const MOVES={rock:'✊🏿',paper:'✋🏿',scissors:'✌🏿'};
+const NAMES={rock:'კლდე',paper:'ქაღ.',scissors:'მაკრ.'};
+const CIRC=163.4;
+
+let peer=null,isHost=false,myPeerId=null,gameMode=null,roomId=null;
+let clientConns={},hostConn=null;
+let playerOrder=[],playerNames={},scores={},choices={};
+let myChoice=null,pickStartTime=null,pickTimer=null,tickIv=null;
+
+function genRoom(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
+function ss(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');}
+function toast(msg,bad){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.background=bad?'#2a0d0d':'#0d2a0d';
+  t.style.color=bad?'#e63946':'#4caf50';
+  t.style.borderColor=bad?'#4a1a1a':'#1a4a1a';
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);
+}
+function res(a,b){if(a===b)return'draw';if((a==='rock'&&b==='scissors')||(a==='paper'&&b==='rock')||(a==='scissors'&&b==='paper'))return'win';return'lose';}
+function rnd(){return['rock','paper','scissors'][Math.floor(Math.random()*3)];}
+function myId(){return isHost?'HOST':myPeerId;}
+
+function loadPeer(cb){
+  if(typeof Peer!=='undefined'){cb();return;}
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js';
+  s.onload=cb; s.onerror=()=>toast('PeerJS ვერ ჩაიტვირთა',true);
+  document.head.appendChild(s);
+}
+
+/* HOST */
+function createGame(mode){
+  gameMode=mode;isHost=true;roomId=genRoom();
+  myPeerId='HOST';playerOrder=['HOST'];
+  playerNames={'HOST':'მოთ. 1'};scores={'HOST':0};
+  loadPeer(()=>{
+    peer=new Peer('jeirani-'+roomId,{host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0});
+    peer.on('open',()=>{updateLobby();ss('lobby');});
+    peer.on('connection',onConn);
+    peer.on('error',e=>{if(e.type==='unavailable-id'){peer.destroy();roomId=genRoom();createGame(mode);}else toast('შეცდომა',true);});
+  });
+}
+
+function onConn(conn){
+  conn.on('open',()=>{
+    if(playerOrder.length>=gameMode){conn.send({type:'full'});conn.close();return;}
+    const pid=conn.peer,num=playerOrder.length+1;
+    clientConns[pid]=conn;
+    playerNames[pid]='მოთ. '+num;
+    scores[pid]=0;
+    playerOrder.push(pid);
+    bcast('waiting');
+    updateLobby();
+    if(playerOrder.length===gameMode)setTimeout(startRound,600);
+  });
+  conn.on('data',d=>{if(d.type==='choice')choices[conn.peer]=d.choice;});
+  conn.on('close',()=>{delete clientConns[conn.peer];toast('მოთამაშე გათიშდა',true);});
+}
+
+function startRound(){
+  choices={};myChoice=null;pickStartTime=Date.now();
+  renderScores();resetBtns();ss('game');
+  bcast('picking');
+  startTick(3);
+  pickTimer=setTimeout(resolveRound,3300);
+}
+
+function resolveRound(){
+  clearTick();clearTimeout(pickTimer);
+  playerOrder.forEach(id=>{if(!choices[id])choices[id]=rnd();});
+  if(!choices['HOST'])choices['HOST']=rnd();
+
+  let rws=[];
+  if(gameMode===2){
+    const[a,b]=playerOrder,r=res(choices[a],choices[b]);
+    if(r==='win')rws=[a];else if(r==='lose')rws=[b];
+  }else{
+    const rs={};playerOrder.forEach(id=>rs[id]=0);
+    for(let i=0;i<playerOrder.length;i++)
+      for(let j=i+1;j<playerOrder.length;j++){
+        const r=res(choices[playerOrder[i]],choices[playerOrder[j]]);
+        if(r==='win')rs[playerOrder[i]]++;else if(r==='lose')rs[playerOrder[j]]++;
+      }
+    const mx=Math.max(...Object.values(rs));
+    if(mx>0)rws=playerOrder.filter(id=>rs[id]===mx);
+  }
+  rws.forEach(id=>scores[id]++);
+  const tgt=gameMode===2?10:5;
+  const gw=playerOrder.find(id=>scores[id]>=tgt);
+  bcast('result',rws,gw);
+  renderResult(rws,gw);
+  ss('result');
+  if(!gw)setTimeout(startRound,3200);
+}
+
+function bcast(phase,rws,gw){
+  const s=buildState(phase,rws,gw);
+  Object.values(clientConns).forEach(c=>{if(c.open)c.send({type:'state',state:s});});
+}
+
+function buildState(phase,rws,gw){
+  return{
+    mode:gameMode,playerOrder,playerNames,scores,
+    choices:phase==='result'?{...choices}:null,
+    phase,roundWinners:rws||[],gameWinner:gw||null,
+    pickStartTime:phase==='picking'?pickStartTime:null,
+    target:gameMode===2?10:5
+  };
+}
+
+/* CLIENT */
+function joinGame(code){
+  isHost=false;roomId=code;ss('joining');
+  loadPeer(()=>{
+    peer=new Peer(undefined,{host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0});
+    peer.on('open',pid=>{
+      myPeerId=pid;
+      hostConn=peer.connect('jeirani-'+code,{reliable:true});
+      hostConn.on('data',d=>{
+        if(d.type==='state')onState(d.state);
+        if(d.type==='full'){toast('სივრცე სავსეა',true);ss('home');peer.destroy();}
+      });
+      hostConn.on('error',()=>toast('შეცდომა',true));
+      hostConn.on('close',()=>{toast('კავშირი გაწყდა',true);setTimeout(()=>location.reload(),1500);});
+      setTimeout(()=>{if(!hostConn.open){toast('კოდი ვერ მოიძებნა',true);ss('home');peer.destroy();}},9000);
+    });
+    peer.on('error',e=>{toast(e.type==='peer-unavailable'?'კოდი ვერ მოიძებნა':'შეცდომა',true);ss('home');});
+  });
+}
+
+function onState(s){
+  gameMode=s.mode;playerOrder=s.playerOrder;playerNames=s.playerNames;scores=s.scores;
+  if(s.phase==='waiting'){updateLobby();ss('lobby');return;}
+  if(s.phase==='picking'){
+    pickStartTime=s.pickStartTime;myChoice=null;choices={};
+    renderScores();resetBtns();ss('game');
+    const el=(Date.now()-pickStartTime)/1000,rem=Math.max(0.2,3-el);
+    startTick(rem);
+    clearTimeout(pickTimer);
+    pickTimer=setTimeout(()=>{if(!myChoice){myChoice=rnd();sendChoice(myChoice);}},Math.max(100,3300-el*1000));
+  }
+  if(s.phase==='result'){
+    clearTick();clearTimeout(pickTimer);
+    choices=s.choices||{};
+    renderResult(s.roundWinners,s.gameWinner);
+    ss('result');
+  }
+}
+
+function sendChoice(move){
+  if(isHost)choices['HOST']=move;
+  else if(hostConn&&hostConn.open)hostConn.send({type:'choice',choice:move});
+}
+
+/* TIMER */
+function startTick(sec){
+  clearTick();
+  const arc=document.getElementById('cd-arc'),num=document.getElementById('cd-num');
+  const end=Date.now()+sec*1000;
+  function tick(){
+    const r=Math.max(0,(end-Date.now())/1000);
+    if(num)num.textContent=Math.ceil(r)||0;
+    if(arc)arc.setAttribute('stroke-dashoffset',CIRC*(1-r/3));
+    if(r<=0)clearTick();
+  }
+  tick();tickIv=setInterval(tick,80);
+}
+function clearTick(){if(tickIv){clearInterval(tickIv);tickIv=null;}}
+
+/* UI */
+function updateLobby(){
+  const cnt=playerOrder.length,tot=gameMode||2;
+  const el=document.getElementById('lobby-count');if(el)el.textContent=cnt+' / '+tot+' მოთამაშე';
+  const link=location.href.split('#')[0]+'#'+roomId;
+  const lv=document.getElementById('share-link');if(lv)lv.textContent=link;
+  const pp=document.getElementById('pills');
+  if(pp){
+    let h='';
+    for(let i=0;i<tot;i++){
+      const id=playerOrder[i];
+      h+=id?`<div class="pill on">✓ ${playerNames[id]}</div>`:'<div class="pill off">მოლოდინი...</div>';
+    }
+    pp.innerHTML=h;
+  }
+}
+
+function renderScores(){
+  const mid=myId(),tgt=gameMode===2?10:5;
+  const bar=document.getElementById('scores-bar');if(!bar)return;
+  bar.innerHTML=playerOrder.map(id=>`
+    <div class="sc ${id===mid?'me':''}">
+      <div class="sc-n">${playerNames[id]}${id===mid?' ★':''}</div>
+      <div class="sc-v">${scores[id]||0}</div>
+      <div class="sc-t">/ ${tgt}</div>
+    </div>`).join('');
+}
+
+function resetBtns(){
+  ['rock','paper','scissors'].forEach(m=>{const b=document.getElementById('btn-'+m);if(b)b.classList.remove('sel','dis');});
+  const pl=document.getElementById('pk-lbl');if(pl)pl.textContent='აირჩიე';
+  const arc=document.getElementById('cd-arc');if(arc)arc.setAttribute('stroke-dashoffset','0');
+  const num=document.getElementById('cd-num');if(num)num.textContent='3';
+}
+
+function renderResult(rws,gw){
+  const mid=myId(),tgt=gameMode===2?10:5;
+  const rg=document.getElementById('rg'),hl=document.getElementById('rhl'),pab=document.getElementById('pab');
+  if(!rg||!hl)return;
+  rg.className='rg '+(gameMode===2?'p2':'p4');
+  rg.innerHTML=playerOrder.map(id=>{
+    const rw=rws&&rws.includes(id),me=id===mid;
+    return`<div class="rc ${rw?'rw':''} ${me?'me':''}">
+      ${rw?'<div class="wb">+1</div>':''}
+      <div class="re">${choices[id]?MOVES[choices[id]]:'❓'}</div>
+      <div class="rn">${playerNames[id]}${me?' (შენ)':''}</div>
+      <div class="rs">${scores[id]||0} / ${tgt}</div>
+    </div>`;
+  }).join('');
+  if(gw){
+    const won=gw===mid;
+    hl.textContent=won?'🏆 გაიმარჯვე!':playerNames[gw]+' — გამარჯვებული!';
+    hl.className='rhl '+(won?'win':'lose');
+    pab.style.display='block';
+  }else{
+    const iw=rws&&rws.includes(mid),dr=!rws||rws.length===0;
+    if(dr){hl.textContent='ფრე';hl.className='rhl draw';}
+    else if(iw){hl.textContent='✓ შენი რაუნდი';hl.className='rhl win';}
+    else{hl.textContent=rws.map(id=>playerNames[id]).join(', ')+' — +1';hl.className='rhl neu';}
+    pab.style.display='none';
+  }
+}
+
+/* PUBLIC */
+window.selectMode=function(mode){createGame(mode);};
+window.pick=function(move){
+  if(myChoice)return;
+  myChoice=move;sendChoice(move);
+  ['rock','paper','scissors'].forEach(m=>{const b=document.getElementById('btn-'+m);if(b){b.classList.add('dis');if(m===move)b.classList.add('sel');}});
+  const pl=document.getElementById('pk-lbl');if(pl)pl.textContent='✓ '+NAMES[move];
+  if(isHost){const all=playerOrder.every(id=>!!choices[id]);if(all){clearTimeout(pickTimer);setTimeout(resolveRound,400);}}
+};
+
+window.copyLink=function(){
+  const link=document.getElementById('share-link').textContent;
+  navigator.clipboard.writeText(link).then(()=>{
+    const b=document.getElementById('copy-btn');
+    b.textContent='კოპირდა ✓';b.classList.add('done');
+    setTimeout(()=>{b.textContent='კოპირება';b.classList.remove('done');},2000);
+  });
+};
+
+window.addEventListener('load',()=>{
+  const h=location.hash.replace('#','').trim().toUpperCase();
+  if(h&&h.length>=4)joinGame(h);
+});
+})();
+</script>
+</body>
+</html>
