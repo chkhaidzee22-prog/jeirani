@@ -332,6 +332,8 @@ function listenRoom(){
 function startRound(){
   if(!isHost)return;
   myChoice=null;
+  roundResolved=false;
+  resultShown=false;
   const start=Date.now();
   roomRef.update({phase:'picking',round:{},pickStartTime:start,roundWinners:[],gameWinner:null});
 }
@@ -343,6 +345,7 @@ function onPicking(d){
     return;
   }
   myChoice=null;
+  resultShown=false;
   renderScores();
   resetBtns();
   ss('game');
@@ -358,12 +361,17 @@ function onPicking(d){
 
 function onResult(d){
   clearTick();clearTimeout(pickTimer);
-  // sync scores from players node
+  if(resultShown)return;
+  resultShown=true;
   const pl=d.players||{};
   playerOrder.forEach(id=>{scores[id]=pl[id]?pl[id].score||0:0;});
-  renderResult(d.roundWinners||[],d.gameWinner||null,d.round||{});
-  ss('result');
-  if(!d.gameWinner&&isHost) setTimeout(startRound,5000);
+  // show choices immediately, reveal winner after 5s
+  renderChoices(d.round||{});
+  setTimeout(()=>{
+    renderResult(d.roundWinners||[],d.gameWinner||null,d.round||{});
+    ss('result');
+    if(!d.gameWinner&&isHost) setTimeout(startRound,3000);
+  }, 5000);
 }
 
 window.pick=function(move){
@@ -378,36 +386,26 @@ window.pick=function(move){
 };
 
 function submitChoice(move){
-  roomRef.child('round/'+myId).set(move).then(()=>{
-    if(!isHost)return;
-    // host checks if everyone picked
-    checkAllPicked();
-  });
+  roomRef.child('round/'+myId).set(move);
 }
 
-function checkAllPicked(){
-  roomRef.child('round').once('value').then(snap=>{
-    const picks=snap.val()||{};
-    const allIn=playerOrder.every(id=>picks[id]);
-    if(allIn) resolveRound(picks);
-  });
-}
-
-// host also watches round for completion
+// host watches round for completion
 let roundWatch=null;
 function watchRound(){
   if(roundWatch)roomRef.child('round').off('value',roundWatch);
   roundWatch=roomRef.child('round').on('value',snap=>{
-    if(!isHost)return;
+    if(!isHost||roundResolved)return;
     const picks=snap.val()||{};
     const allIn=playerOrder.length>0&&playerOrder.every(id=>picks[id]);
-    if(allIn) resolveRound(picks);
+    if(allIn){ roundResolved=true; resolveRound(picks); }
   });
 }
 
+let roundResolved=false;
+let resultShown=false;
+
 function resolveRound(picks){
   if(!isHost)return;
-  // fill missing
   playerOrder.forEach(id=>{if(!picks[id])picks[id]=rndMove();});
 
   let rws=[];
@@ -426,19 +424,24 @@ function resolveRound(picks){
     if(mx>0)rws=playerOrder.filter(id=>rs[id]===mx);
   }
 
-  // update scores
-  const tgt=gameMode===2?10:5;
-  const scoreUpdates={};
-  rws.forEach(id=>{
-    scores[id]=(scores[id]||0)+1;
-    scoreUpdates['players/'+id+'/score']=scores[id];
-  });
-  const gw=playerOrder.find(id=>(scores[id]||0)>=tgt)||null;
-
-  roomRef.update({
-    phase:'result', round:picks,
-    roundWinners:rws, gameWinner:gw||'',
-    ...scoreUpdates
+  // read current scores from Firebase then update
+  roomRef.child('players').once('value').then(snap=>{
+    const pl=snap.val()||{};
+    const tgt=gameMode===2?10:5;
+    const scoreUpdates={};
+    rws.forEach(id=>{
+      const cur=pl[id]?pl[id].score||0:0;
+      scoreUpdates['players/'+id+'/score']=cur+1;
+      scores[id]=cur+1;
+    });
+    playerOrder.forEach(id=>{if(!rws.includes(id))scores[id]=pl[id]?pl[id].score||0:0;});
+    const gw=playerOrder.find(id=>(scores[id]||0)>=tgt)||null;
+    roomRef.update({
+      phase:'result', round:picks,
+      roundWinners:rws, gameWinner:gw||'',
+      resultTime:Date.now(),
+      ...scoreUpdates
+    });
   });
 }
 
@@ -497,7 +500,23 @@ function resetBtns(){
   const num=document.getElementById('cdn');if(num)num.textContent='5';
 }
 
-function renderResult(rws,gw,picks){
+function renderChoices(picks){
+  const tgt=gameMode===2?10:5;
+  const rg=document.getElementById('rg'),hl=document.getElementById('rhl'),ab=document.getElementById('again-btn');
+  if(!rg||!hl)return;
+  rg.className='rg '+(gameMode===2?'p2':'p4');
+  rg.innerHTML=playerOrder.map(id=>`
+    <div class="rc ${id===myId?'me':''}">
+      <div class="re">${picks[id]?MOVES[picks[id]]:'⏳'}</div>
+      <div class="rn">${playerNames[id]}${id===myId?' (შენ)':''}</div>
+      <div class="rs">${scores[id]||0} / ${tgt}</div>
+    </div>`).join('');
+  hl.textContent='...';hl.className='rhl neu';
+  if(ab)ab.style.display='none';
+  ss('result');
+}
+
+
   const tgt=gameMode===2?10:5;
   const rg=document.getElementById('rg'),hl=document.getElementById('rhl'),ab=document.getElementById('again-btn');
   if(!rg||!hl)return;
