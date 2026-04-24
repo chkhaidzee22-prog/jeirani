@@ -4,94 +4,456 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ჯეირანი</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+Georgian:wght@400;700&display=swap" rel="stylesheet">
-
-<!-- Firebase -->
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+Georgian:wght@300;400;600&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-
 <style>
-:root{--bg:#080808;--s:#111;--b2:#2a2a2a;--red:#e63946;--gold:#c9a84c;--green:#4caf50;--w:#f0ece4;--gr:#555;}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--w);font-family:'Noto Sans Georgian',sans-serif;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px 60px;}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 40% at 50% 0%,rgba(230,57,70,.08) 0%,transparent 60%);pointer-events:none;}
-.wrap{width:100%;max-width:420px;position:relative;z-index:1;}
-.hdr{text-align:center;margin-bottom:40px;padding-top:4px;}
-.ht{font-family:'Bebas Neue',cursive;font-size:72px;letter-spacing:8px;line-height:1;text-shadow:0 0 60px rgba(230,57,70,.3);}
-.hs{font-size:11px;letter-spacing:5px;color:var(--gr);text-transform:uppercase;margin-top:4px;}
-.screen{display:none;}.screen.active{display:block;}
-.btn{display:block;width:100%;padding:18px;background:var(--red);border:none;color:#fff;font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:3px;cursor:pointer;transition:opacity .15s;text-align:center;}
-.btn:active{opacity:.8;}
-.btn.gold{background:var(--gold);}
-.btn.ghost{background:transparent;border:1px solid var(--b2);color:var(--gr);font-size:14px;padding:14px;margin-top:10px;}
-.btn.ghost:hover{border-color:var(--gr);color:var(--w);}
-.mg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
-.mc{background:var(--s);border:1px solid var(--b2);padding:28px 12px;text-align:center;cursor:pointer;transition:border-color .15s;}
-.mc:hover{border-color:var(--red);}
-.mi{font-size:40px;display:block;margin-bottom:10px;}
-.mt{font-family:'Bebas Neue',cursive;font-size:26px;letter-spacing:2px;}
-.md{font-size:11px;color:var(--gr);margin-top:4px;}
-.mx{font-size:10px;color:var(--gold);margin-top:4px;}
-.box{background:var(--s);border:1px solid var(--b2);padding:20px;margin-bottom:14px;}
-.lbl{font-size:10px;letter-spacing:3px;color:var(--gr);text-transform:uppercase;margin-bottom:8px;}
-.link-row{display:flex;gap:8px;align-items:center;margin-top:8px;}
-.lv{flex:1;font-size:12px;color:var(--gold);word-break:break-all;font-family:monospace;line-height:1.5;}
-.cbtn{background:var(--b2);border:none;color:var(--w);padding:8px 12px;font-size:11px;cursor:pointer;white-space:nowrap;}
-.cbtn.ok{background:#1a3a1a;color:var(--green);}
-.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
-.pill{padding:7px 14px;font-size:12px;border:1px solid var(--b2);color:var(--gr);}
-.pill.on{border-color:var(--green);color:var(--green);background:#0d1a0d;}
-.pill.blink{animation:bl 1.2s infinite;}
-@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
-.sbar{display:flex;gap:6px;margin-bottom:22px;}
-.sc{flex:1;background:var(--s);border:1px solid var(--b2);padding:10px 6px;text-align:center;}
-.sc.me{border-color:var(--red);background:#150b0c;}
-.scn{font-size:10px;color:var(--gr);margin-bottom:2px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.scv{font-family:'Bebas Neue',cursive;font-size:34px;line-height:1;}
-.sct{font-size:10px;color:var(--gr);}
-.cdw{display:flex;flex-direction:column;align-items:center;margin-bottom:26px;}
-.cds{width:80px;height:80px;}
-.cdb{fill:none;stroke:var(--b2);stroke-width:4;}
-.cda{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;}
-.cdn{font-family:'Bebas Neue',cursive;font-size:36px;fill:var(--w);text-anchor:middle;dominant-baseline:central;}
-.pkl{font-size:12px;letter-spacing:3px;color:var(--gr);text-transform:uppercase;margin-top:8px;}
-.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.ch{aspect-ratio:1;background:var(--s);border:1px solid var(--b2);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:border-color .1s;position:relative;overflow:hidden;}
-.ch:hover{border-color:var(--red);background:#140b0c;}
-.ch.sel{border-color:var(--red);background:#1a0e0f;}
-.ch.sel::after{content:'';position:absolute;inset:0;background:var(--red);opacity:.07;}
-.ch.dis{opacity:.3;pointer-events:none;}
-.ce{font-size:40px;line-height:1;}
-.cl{font-size:10px;letter-spacing:2px;color:var(--gr);text-transform:uppercase;}
-.ch:hover .cl,.ch.sel .cl{color:var(--w);}
-.rg{display:grid;gap:10px;margin-bottom:22px;}
-.rg.p2{grid-template-columns:1fr 1fr;}
-.rg.p4{grid-template-columns:1fr 1fr;}
-.rc{background:var(--s);border:1px solid var(--b2);padding:16px 10px;text-align:center;position:relative;}
-.rc.rw{border-color:var(--gold);background:#181208;}
-.rc.me{border-color:var(--red);}
-.rc.rw.me{border-color:var(--gold);}
-.re{font-size:42px;line-height:1;margin-bottom:6px;}
-.rn{font-size:11px;color:var(--gr);}
-.rs{font-family:'Bebas Neue',cursive;font-size:26px;margin-top:4px;}
-.wb{position:absolute;top:5px;right:5px;background:var(--gold);color:#000;font-size:10px;padding:2px 6px;font-family:'Bebas Neue',cursive;}
-.rhl{font-family:'Bebas Neue',cursive;font-size:48px;letter-spacing:4px;text-align:center;margin-bottom:22px;line-height:1;}
-.rhl.win{color:var(--gold);text-shadow:0 0 30px rgba(201,168,76,.4);}
-.rhl.lose{color:var(--red);}.rhl.draw{color:var(--gr);}.rhl.neu{color:var(--w);}
-.div{display:flex;align-items:center;gap:10px;margin:20px 0;}
-.dl{flex:1;height:1px;background:var(--b2);}
-.dt{font-size:10px;color:var(--gr);letter-spacing:2px;text-transform:uppercase;}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(12px);padding:12px 20px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap;border:1px solid transparent;}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-/* SETUP OVERLAY */
-.setup{position:fixed;inset:0;background:rgba(8,8,8,.97);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;}
-.setup-box{max-width:400px;width:100%;}
-.setup-title{font-family:'Bebas Neue',cursive;font-size:32px;letter-spacing:3px;color:var(--red);margin-bottom:16px;}
-.setup-step{background:var(--s);border:1px solid var(--b2);padding:14px;margin-bottom:8px;font-size:13px;line-height:1.7;}
-.setup-step b{color:var(--gold);}
-.setup-step a{color:var(--red);}
-.setup-inp{width:100%;background:#000;border:1px solid var(--b2);color:var(--w);padding:12px;font-family:monospace;font-size:12px;outline:none;margin-top:8px;resize:vertical;height:120px;}
-.setup-inp:focus{border-color:var(--red);}
+:root {
+  --bg: #06060a;
+  --card: rgba(255,255,255,0.03);
+  --card-border: rgba(255,255,255,0.07);
+  --card-hover: rgba(255,255,255,0.06);
+  --red: #ff3b4e;
+  --red-glow: rgba(255,59,78,0.25);
+  --gold: #e8b86d;
+  --gold-glow: rgba(232,184,109,0.2);
+  --green: #34d399;
+  --white: #f5f1eb;
+  --muted: rgba(245,241,235,0.35);
+  --muted2: rgba(245,241,235,0.15);
+  --r: 16px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { height:100%; }
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Noto Sans Georgian', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 20px 80px;
+  overflow-x: hidden;
+}
+
+/* AMBIENT BACKGROUND */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 15% 20%, rgba(255,59,78,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 85% 80%, rgba(232,184,109,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(100,100,255,0.03) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+/* NOISE TEXTURE */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: 0.4;
+}
+
+.wrap {
+  width: 100%; max-width: 400px;
+  position: relative; z-index: 1;
+}
+
+/* ── HEADER ── */
+.hdr {
+  text-align: center;
+  margin-bottom: 48px;
+  padding-top: 8px;
+  animation: fadeDown 0.6s ease both;
+}
+
+.ht {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 80px;
+  letter-spacing: 12px;
+  line-height: 0.9;
+  background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.6) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 40px rgba(255,59,78,0.3));
+}
+
+.hs {
+  font-size: 10px;
+  letter-spacing: 6px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 8px;
+  font-weight: 300;
+}
+
+/* ── SCREENS ── */
+.screen { display: none; }
+.screen.active { display: block; animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(16px); }
+  to { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeDown {
+  from { opacity:0; transform:translateY(-12px); }
+  to { opacity:1; transform:translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity:0; transform:scale(0.92); }
+  to { opacity:1; transform:scale(1); }
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--r);
+  padding: 20px;
+  margin-bottom: 12px;
+  backdrop-filter: blur(20px);
+}
+
+/* ── BUTTONS ── */
+.btn {
+  display: block; width: 100%;
+  padding: 18px 24px;
+  border: none; border-radius: 12px;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 20px; letter-spacing: 3px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+  position: relative; overflow: hidden;
+  text-align: center;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--red) 0%, #ff6b7a 100%);
+  color: white;
+  box-shadow: 0 8px 32px var(--red-glow), 0 2px 8px rgba(0,0,0,0.3);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px var(--red-glow), 0 4px 12px rgba(0,0,0,0.3); }
+.btn-primary:active { transform: scale(0.97); }
+
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold) 0%, #f5d08a 100%);
+  color: #1a0e00;
+  box-shadow: 0 8px 32px var(--gold-glow);
+}
+.btn-gold:hover { transform: translateY(-2px); }
+.btn-gold:active { transform: scale(0.97); }
+
+/* ── MODE CARDS ── */
+.mg { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 0; }
+
+.mc {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--r);
+  padding: 28px 16px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
+  position: relative; overflow: hidden;
+  backdrop-filter: blur(20px);
+}
+
+.mc::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255,59,78,0.12) 0%, transparent 70%);
+  opacity: 0; transition: opacity 0.3s;
+}
+.mc:hover::before { opacity: 1; }
+.mc:hover {
+  border-color: rgba(255,59,78,0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(255,59,78,0.12);
+}
+.mc:active { transform: scale(0.97); }
+
+.mi {
+  font-size: 44px;
+  display: block;
+  margin-bottom: 14px;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+}
+.mt {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 28px; letter-spacing: 2px;
+  color: var(--white);
+}
+.md { font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 300; }
+.mx { font-size: 10px; color: var(--gold); margin-top: 6px; letter-spacing: 1px; }
+
+/* ── LOBBY ── */
+.lbl {
+  font-size: 10px; letter-spacing: 3px;
+  color: var(--muted); text-transform: uppercase;
+  margin-bottom: 12px; font-weight: 400;
+}
+
+.link-wrap {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex; gap: 10px; align-items: center;
+}
+.lv {
+  flex: 1; font-size: 12px; color: var(--gold);
+  word-break: break-all; font-family: monospace; line-height: 1.5;
+}
+.cbtn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  color: var(--white); padding: 8px 14px;
+  font-size: 11px; cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  font-family: 'Noto Sans Georgian', sans-serif;
+}
+.cbtn:hover { background: rgba(255,255,255,0.14); }
+.cbtn.ok { background: rgba(52,211,153,0.15); border-color: rgba(52,211,153,0.4); color: var(--green); }
+
+.lobby-count {
+  text-align: center;
+  font-size: 13px; color: var(--muted);
+  letter-spacing: 2px; margin-bottom: 16px;
+}
+
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill {
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-size: 12px;
+  border: 1px solid var(--card-border);
+  color: var(--muted);
+  background: rgba(255,255,255,0.03);
+}
+.pill.on {
+  border-color: rgba(52,211,153,0.4);
+  color: var(--green);
+  background: rgba(52,211,153,0.08);
+}
+.pill.blink { animation: pulse-pill 1.5s ease-in-out infinite; }
+@keyframes pulse-pill {
+  0%,100% { opacity:1; } 50% { opacity:0.4; }
+}
+
+.lobby-hint {
+  text-align: center;
+  font-size: 12px; color: var(--muted2);
+  letter-spacing: 2px; margin-top: 16px;
+}
+
+/* ── JOINING ── */
+.join-spinner {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 60px 20px; gap: 20px;
+}
+.spinner {
+  width: 44px; height: 44px;
+  border: 2px solid var(--card-border);
+  border-top-color: var(--red);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.join-txt { font-size: 12px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+
+/* ── SCORE BAR ── */
+.sbar { display: flex; gap: 8px; margin-bottom: 28px; }
+.sc {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 12px 8px; text-align: center;
+  transition: all 0.3s;
+}
+.sc.me {
+  border-color: rgba(255,59,78,0.35);
+  background: rgba(255,59,78,0.06);
+}
+.scn { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scv { font-family: 'Bebas Neue', cursive; font-size: 38px; line-height: 1; }
+.sct { font-size: 10px; color: var(--muted2); margin-top: 2px; }
+
+/* ── COUNTDOWN ── */
+.cdw {
+  display: flex; flex-direction: column;
+  align-items: center; margin-bottom: 32px;
+}
+.cds { width: 90px; height: 90px; }
+.cdb { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 3; }
+.cda {
+  fill: none; stroke: var(--red); stroke-width: 3;
+  stroke-linecap: round;
+  transform: rotate(-90deg); transform-origin: 50% 50%;
+  filter: drop-shadow(0 0 6px var(--red));
+  transition: stroke-dashoffset 0.08s linear;
+}
+.cdn {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 38px; fill: var(--white);
+  text-anchor: middle; dominant-baseline: central;
+}
+.pkl {
+  font-size: 11px; letter-spacing: 4px;
+  color: var(--muted); text-transform: uppercase;
+  margin-top: 12px;
+}
+
+/* ── CHOICE BUTTONS ── */
+.choices { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+
+.ch {
+  aspect-ratio: 1;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px;
+  transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+  position: relative; overflow: hidden;
+}
+
+.ch::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(255,59,78,0.15) 0%, transparent 70%);
+  opacity: 0; transition: opacity 0.2s; border-radius: 16px;
+}
+.ch:hover::before { opacity: 1; }
+.ch:hover {
+  border-color: rgba(255,59,78,0.45);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 30px rgba(255,59,78,0.15);
+}
+.ch:active { transform: scale(0.95); }
+
+.ch.sel {
+  border-color: rgba(255,59,78,0.6);
+  background: rgba(255,59,78,0.08);
+  box-shadow: 0 0 0 1px rgba(255,59,78,0.3), 0 8px 30px rgba(255,59,78,0.2);
+}
+.ch.sel::before { opacity: 1; }
+.ch.dis { opacity: 0.25; pointer-events: none; transform: none !important; }
+
+.ce { font-size: 42px; line-height: 1; transition: transform 0.2s; }
+.ch:hover .ce { transform: scale(1.1); }
+.cl { font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+.ch:hover .cl, .ch.sel .cl { color: var(--white); }
+
+/* ── RESULT ── */
+.rhl {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 52px; letter-spacing: 5px;
+  text-align: center; margin-bottom: 24px;
+  line-height: 1;
+  animation: scaleIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+.rhl.win { color: var(--gold); filter: drop-shadow(0 0 20px var(--gold-glow)); }
+.rhl.lose { color: var(--red); }
+.rhl.draw { color: var(--muted); }
+.rhl.neu { color: var(--white); }
+
+.rg { display: grid; gap: 10px; margin-bottom: 20px; }
+.rg.p2 { grid-template-columns: 1fr 1fr; }
+.rg.p4 { grid-template-columns: 1fr 1fr; }
+
+.rc {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 18px 12px; text-align: center;
+  position: relative; overflow: hidden;
+  animation: scaleIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+.rc:nth-child(2) { animation-delay: 0.05s; }
+.rc:nth-child(3) { animation-delay: 0.1s; }
+.rc:nth-child(4) { animation-delay: 0.15s; }
+
+.rc.rw {
+  border-color: rgba(232,184,109,0.45);
+  background: rgba(232,184,109,0.06);
+}
+.rc.me { border-color: rgba(255,59,78,0.4); }
+.rc.rw.me { border-color: rgba(232,184,109,0.5); }
+
+.re { font-size: 46px; line-height: 1; margin-bottom: 8px; }
+.rn { font-size: 11px; color: var(--muted); }
+.rs { font-family: 'Bebas Neue', cursive; font-size: 28px; margin-top: 6px; }
+
+.wb {
+  position: absolute; top: 8px; right: 8px;
+  background: var(--gold); color: #1a0e00;
+  font-size: 10px; padding: 3px 8px;
+  border-radius: 100px;
+  font-family: 'Bebas Neue', cursive; letter-spacing: 1px;
+  font-weight: bold;
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 32px; left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  padding: 12px 22px;
+  border-radius: 100px;
+  font-size: 13px; letter-spacing: 0.5px;
+  opacity: 0; transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
+  pointer-events: none; z-index: 999;
+  white-space: nowrap;
+  backdrop-filter: blur(20px);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── SETUP OVERLAY ── */
+.setup {
+  position: fixed; inset: 0;
+  background: rgba(6,6,10,0.97);
+  z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(20px);
+}
+.setup-box { max-width: 380px; width: 100%; animation: fadeUp 0.5s ease both; }
+.setup-title {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 28px; letter-spacing: 3px;
+  color: var(--red); margin-bottom: 20px;
+}
+.setup-step {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 14px 16px; margin-bottom: 8px;
+  font-size: 13px; line-height: 1.7; color: var(--white);
+}
+.setup-step b { color: var(--gold); }
+.setup-step a { color: var(--red); }
+.setup-inp {
+  width: 100%;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  color: var(--white); padding: 14px 16px;
+  font-family: monospace; font-size: 12px;
+  outline: none; margin-top: 8px;
+  resize: vertical; height: 120px;
+  transition: border-color 0.2s;
+}
+.setup-inp:focus { border-color: rgba(255,59,78,0.5); }
 </style>
 </head>
 <body>
@@ -121,27 +483,25 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
   <!-- LOBBY -->
   <div class="screen" id="screen-lobby">
-    <div class="box">
+    <div class="card">
       <div class="lbl">🔗 გაუგზავნე ეს ლინკი</div>
-      <div class="link-row">
+      <div class="link-wrap">
         <div class="lv" id="share-link">—</div>
         <button class="cbtn" id="copy-btn" onclick="copyLink()">კოპირება</button>
       </div>
     </div>
-    <div class="box">
-      <div class="lbl" style="text-align:center" id="lobby-status">0 / 0 მოთამაშე</div>
+    <div class="card">
+      <div class="lobby-count" id="lobby-status">0 / 0 მოთამაშე</div>
       <div class="pills" id="pills"></div>
     </div>
-    <div style="font-size:12px;color:var(--gr);text-align:center;margin-top:8px;">
-      მოწინააღმდეგის მოლოდინში...
-    </div>
+    <div class="lobby-hint">მოწინააღმდეგის მოლოდინში...</div>
   </div>
 
   <!-- JOINING -->
   <div class="screen" id="screen-joining">
-    <div class="box" style="text-align:center;padding:32px;">
-      <div style="font-size:32px;margin-bottom:12px;">⏳</div>
-      <div style="font-size:14px;letter-spacing:2px;color:var(--gr);">დაკავშირება...</div>
+    <div class="join-spinner">
+      <div class="spinner"></div>
+      <div class="join-txt">დაკავშირება</div>
     </div>
   </div>
 
@@ -157,9 +517,15 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
       <div class="pkl" id="pkl">აირჩიე</div>
     </div>
     <div class="choices">
-      <button class="ch" id="b-rock" onclick="pick('rock')"><div class="ce">✊🏿</div><div class="cl">კლდე</div></button>
-      <button class="ch" id="b-paper" onclick="pick('paper')"><div class="ce">✋🏿</div><div class="cl">ქაღ.</div></button>
-      <button class="ch" id="b-scissors" onclick="pick('scissors')"><div class="ce">✌🏿</div><div class="cl">მაკრ.</div></button>
+      <button class="ch" id="b-rock" onclick="pick('rock')">
+        <div class="ce">✊🏿</div><div class="cl">კლდე</div>
+      </button>
+      <button class="ch" id="b-paper" onclick="pick('paper')">
+        <div class="ce">✋🏿</div><div class="cl">ქაღ.</div>
+      </button>
+      <button class="ch" id="b-scissors" onclick="pick('scissors')">
+        <div class="ce">✌🏿</div><div class="cl">მაკრ.</div>
+      </button>
     </div>
   </div>
 
@@ -167,7 +533,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <div class="screen" id="screen-result">
     <div class="rhl neu" id="rhl">—</div>
     <div class="rg" id="rg"></div>
-    <button class="btn gold" id="again-btn" onclick="location.reload()" style="display:none">ახალი თამაში</button>
+    <button class="btn btn-gold" id="again-btn" onclick="location.reload()" style="display:none">ახალი თამაში</button>
   </div>
 </div>
 
@@ -185,14 +551,10 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
       <b>2.</b> Build → <b>Realtime Database</b> → Create Database → Start in <b>test mode</b> → Enable
     </div>
     <div class="setup-step">
-      <b>3.</b> Project Settings (⚙️) → General → "Add app" → Web (&lt;/&gt;) → Register app → კოპირება გააკეთე <b>firebaseConfig</b> ობიექტის შიგთავსი
+      <b>3.</b> Project Settings (⚙️) → General → "Add app" → Web (&lt;/&gt;) → Register app → კოპირება გააკეთე <b>firebaseConfig</b>
     </div>
-    <textarea class="setup-inp" id="config-input" placeholder='apiKey: "...",
-authDomain: "...",
-databaseURL: "...",
-projectId: "...",
-...'></textarea>
-    <button class="btn" style="margin-top:10px;" onclick="saveConfig()">შენახვა და გაშვება</button>
+    <textarea class="setup-inp" id="config-input" placeholder='apiKey: "...", authDomain: "...", databaseURL: "...", projectId: "..."'></textarea>
+    <button class="btn btn-primary" style="margin-top:12px;" onclick="saveConfig()">შენახვა და გაშვება</button>
   </div>
 </div>
 
@@ -227,7 +589,6 @@ function checkConfig(){
 window.saveConfig=function(){
   const raw=document.getElementById('config-input').value.trim();
   try{
-    // wrap in object to parse
     const cfg=eval('(function(){return {'+raw+'}})()');
     if(!cfg.apiKey||!cfg.databaseURL) throw new Error('missing fields');
     localStorage.setItem('fb_config',JSON.stringify(cfg));
@@ -241,30 +602,32 @@ window.saveConfig=function(){
 function initFirebase(cfg){
   if(!firebase.apps.length) firebase.initializeApp(cfg);
   db=firebase.database();
-  // check connection
   db.ref('.info/connected').on('value',snap=>{
     if(!snap.val()) toast('Firebase-ს ვერ უკავშირდება',true);
   });
-  // auto-join if hash
   const hash=location.hash.replace('#','').trim().toUpperCase();
   if(hash&&hash.length===6) joinRoom(hash);
 }
 
 /* ── UTILS ── */
-function ss(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');}
+function ss(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
 function toast(msg,bad){
   const t=document.getElementById('toast');
   t.textContent=msg;
-  t.style.background=bad?'#2a0d0d':'#0d2a0d';
-  t.style.color=bad?'#e63946':'#4caf50';
-  t.style.borderColor=bad?'#4a1a1a':'#1a4a1a';
-  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);
+  t.style.background=bad?'rgba(255,59,78,0.15)':'rgba(52,211,153,0.12)';
+  t.style.color=bad?'#ff6b7a':'var(--green)';
+  t.style.border=bad?'1px solid rgba(255,59,78,0.3)':'1px solid rgba(52,211,153,0.3)';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2400);
 }
 function genId(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
 function getRes(a,b){if(a===b)return'draw';if((a==='rock'&&b==='scissors')||(a==='paper'&&b==='rock')||(a==='scissors'&&b==='paper'))return'win';return'lose';}
 function rndMove(){return['rock','paper','scissors'][Math.floor(Math.random()*3)];}
 
-/* ── HOST: CREATE ROOM ── */
+/* ── HOST ── */
 window.startGame=function(mode){
   if(!db){toast('Firebase არ არის ინიციალიზებული',true);return;}
   gameMode=mode; isHost=true;
@@ -272,7 +635,6 @@ window.startGame=function(mode){
   playerOrder=['p0'];
   playerNames={'p0':'მოთ. 1'};
   scores={'p0':0};
-
   roomRef=db.ref('rooms/'+roomId);
   roomRef.set({
     mode, phase:'waiting',
@@ -280,19 +642,15 @@ window.startGame=function(mode){
     round:{}, roundWinners:[], gameWinner:null,
     pickStartTime:0, createdAt:Date.now()
   }).then(()=>{
-    // auto-cleanup after 2 hours
     roomRef.child('createdAt').onDisconnect().remove();
-    listenRoom();
-    updateLobby();
-    ss('lobby');
+    listenRoom(); updateLobby(); ss('lobby');
   }).catch(e=>toast('შეცდომა: '+e.message,true));
 };
 
-/* ── CLIENT: JOIN ROOM ── */
+/* ── CLIENT ── */
 function joinRoom(code){
   if(!db){return;}
-  roomId=code; isHost=false;
-  ss('joining');
+  roomId=code; isHost=false; ss('joining');
   roomRef=db.ref('rooms/'+roomId);
   roomRef.once('value').then(snap=>{
     if(!snap.exists()){toast('ოთახი ვერ მოიძებნა',true);ss('home');return;}
@@ -300,7 +658,6 @@ function joinRoom(code){
     gameMode=data.mode;
     const existingPlayers=Object.keys(data.players||{});
     if(existingPlayers.length>=gameMode){toast('ოთახი სავსეა',true);ss('home');return;}
-    // assign player id
     myId='p'+existingPlayers.length;
     const num=existingPlayers.length+1;
     roomRef.child('players/'+myId).set({name:'მოთ. '+num,score:0,connected:true});
@@ -314,7 +671,6 @@ function listenRoom(){
     if(!snap.exists())return;
     const d=snap.val();
     gameMode=d.mode||gameMode;
-    // sync players
     const pl=d.players||{};
     playerOrder=Object.keys(pl).sort();
     playerOrder.forEach(id=>{
@@ -331,24 +687,17 @@ function listenRoom(){
 /* ── GAME FLOW ── */
 function startRound(){
   if(!isHost)return;
-  myChoice=null;
-  roundResolved=false;
-  resultShown=false;
+  myChoice=null; roundResolved=false; resultShown=false;
   const start=Date.now();
   roomRef.update({phase:'picking',round:{},pickStartTime:start,roundWinners:[],gameWinner:null});
 }
 
 function onPicking(d){
   if(document.getElementById('screen-game').classList.contains('active')){
-    // already in game, just update scores
-    renderScores();
-    return;
+    renderScores(); return;
   }
-  myChoice=null;
-  resultShown=false;
-  renderScores();
-  resetBtns();
-  ss('game');
+  myChoice=null; resultShown=false;
+  renderScores(); resetBtns(); ss('game');
   const elapsed=(Date.now()-d.pickStartTime)/1000;
   const rem=Math.max(0.3,5-elapsed);
   startTick(rem);
@@ -356,22 +705,20 @@ function onPicking(d){
   pickTimer=setTimeout(()=>{
     if(!myChoice){myChoice=rndMove();submitChoice(myChoice);}
   },Math.max(200,rem*1000-100));
-
 }
 
 function onResult(d){
-  clearTick();clearTimeout(pickTimer);
+  clearTick(); clearTimeout(pickTimer);
   if(resultShown)return;
   resultShown=true;
   const pl=d.players||{};
   playerOrder.forEach(id=>{scores[id]=pl[id]?pl[id].score||0:0;});
-  // show choices immediately, reveal winner after 5s
   renderChoices(d.round||{});
   setTimeout(()=>{
     renderResult(d.roundWinners||[],d.gameWinner||null,d.round||{});
     ss('result');
     if(!d.gameWinner&&isHost) setTimeout(startRound,3000);
-  }, 5000);
+  },5000);
 }
 
 window.pick=function(move){
@@ -389,7 +736,6 @@ function submitChoice(move){
   roomRef.child('round/'+myId).set(move);
 }
 
-// host watches round for completion
 let roundWatch=null;
 function watchRound(){
   if(roundWatch)roomRef.child('round').off('value',roundWatch);
@@ -397,7 +743,7 @@ function watchRound(){
     if(!isHost||roundResolved)return;
     const picks=snap.val()||{};
     const allIn=playerOrder.length>0&&playerOrder.every(id=>picks[id]);
-    if(allIn){ roundResolved=true; resolveRound(picks); }
+    if(allIn){roundResolved=true;resolveRound(picks);}
   });
 }
 
@@ -407,7 +753,6 @@ let resultShown=false;
 function resolveRound(picks){
   if(!isHost)return;
   playerOrder.forEach(id=>{if(!picks[id])picks[id]=rndMove();});
-
   let rws=[];
   if(gameMode===2){
     const[a,b]=playerOrder;
@@ -423,8 +768,6 @@ function resolveRound(picks){
     const mx=Math.max(...Object.values(rs));
     if(mx>0)rws=playerOrder.filter(id=>rs[id]===mx);
   }
-
-  // read current scores from Firebase then update
   roomRef.child('players').once('value').then(snap=>{
     const pl=snap.val()||{};
     const tgt=gameMode===2?10:5;
@@ -437,10 +780,9 @@ function resolveRound(picks){
     playerOrder.forEach(id=>{if(!rws.includes(id))scores[id]=pl[id]?pl[id].score||0:0;});
     const gw=playerOrder.find(id=>(scores[id]||0)>=tgt)||null;
     roomRef.update({
-      phase:'result', round:picks,
-      roundWinners:rws, gameWinner:gw||'',
-      resultTime:Date.now(),
-      ...scoreUpdates
+      phase:'result',round:picks,
+      roundWinners:rws,gameWinner:gw||'',
+      resultTime:Date.now(),...scoreUpdates
     });
   });
 }
@@ -456,7 +798,7 @@ function startTick(sec){
     if(arc)arc.setAttribute('stroke-dashoffset',CIRC*(1-r/5));
     if(r<=0)clearTick();
   }
-  tick();tickIv=setInterval(tick,80);
+  tick(); tickIv=setInterval(tick,80);
 }
 function clearTick(){if(tickIv){clearInterval(tickIv);tickIv=null;}}
 
@@ -471,12 +813,11 @@ function updateLobby(){
   if(pp){
     let h='';
     for(let i=0;i<tot;i++){
-      const id='p'+i, name=playerNames[id];
+      const id='p'+i,name=playerNames[id];
       h+=name?`<div class="pill on">✓ ${name}</div>`:'<div class="pill blink">მოლოდინი...</div>';
     }
     pp.innerHTML=h;
   }
-  // start game when full
   if(isHost&&playerOrder.length===tot){
     setTimeout(()=>{watchRound();startRound();},800);
   }
@@ -516,7 +857,6 @@ function renderChoices(picks){
   ss('result');
 }
 
-
 function renderResult(rws,gw,picks){
   const tgt=gameMode===2?10:5;
   const rg=document.getElementById('rg'),hl=document.getElementById('rhl'),ab=document.getElementById('again-btn');
@@ -555,7 +895,6 @@ window.copyLink=function(){
   });
 };
 
-/* ── INIT ── */
 checkConfig();
 })();
 </script>
