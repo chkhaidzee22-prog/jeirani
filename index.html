@@ -459,7 +459,7 @@ body::after {
 <body>
 <div class="wrap">
   <div class="hdr">
-    <div class="ht">ᲯᲔᲘᲠᲐᲜᲘ</div>
+    <div class="ht">ჯეირანი</div>
     <div class="hs">Rock · Paper · Scissors</div>
   </div>
 
@@ -718,7 +718,7 @@ function onResult(d){
     renderResult(d.roundWinners||[],d.gameWinner||null,d.round||{});
     ss('result');
     if(!d.gameWinner&&isHost) setTimeout(startRound,3000);
-  },5000);
+  },1500);
 }
 
 window.pick=function(move){
