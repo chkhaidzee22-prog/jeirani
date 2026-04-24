@@ -454,18 +454,82 @@ body::after {
   transition: border-color 0.2s;
 }
 .setup-inp:focus { border-color: rgba(255,59,78,0.5); }
+
+/* ── WORD GAME ── */
+.mc:last-child { grid-column: 1/-1; }
+.wg-header { margin-bottom: 20px; }
+.wg-scores { display:flex; gap:8px; margin-bottom:14px; }
+.wg-timer-wrap { margin-bottom:6px; }
+.wg-timer {
+  font-family:'Bebas Neue',cursive; font-size:48px;
+  text-align:center; line-height:1; margin-bottom:8px;
+  transition: color 0.3s;
+}
+.wg-timer.urgent { color: var(--red); animation: urgentPulse 0.5s ease-in-out infinite; }
+@keyframes urgentPulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+.wg-timer-bar {
+  height:4px; background:rgba(255,255,255,0.08);
+  border-radius:2px; overflow:hidden;
+}
+.wg-timer-fill {
+  height:100%; background:var(--red);
+  border-radius:2px; transition:width 0.5s linear, background 0.3s;
+  box-shadow: 0 0 8px var(--red-glow);
+}
+.wg-turn-label {
+  text-align:center; font-size:12px; letter-spacing:3px;
+  color:var(--muted); text-transform:uppercase; margin-bottom:16px;
+}
+.wg-turn-label.my-turn { color:var(--green); }
+.wg-chain {
+  display:flex; flex-wrap:wrap; gap:6px;
+  margin-bottom:16px; min-height:32px;
+  max-height:100px; overflow-y:auto;
+}
+.wg-chip {
+  background:rgba(255,255,255,0.06); border:1px solid var(--card-border);
+  border-radius:100px; padding:4px 12px; font-size:12px;
+  color:var(--muted); animation:fadeUp 0.2s ease both;
+}
+.wg-chip.mine { border-color:rgba(255,59,78,0.35); color:var(--white); }
+.wg-chip.theirs { border-color:rgba(232,184,109,0.3); color:var(--gold); }
+.wg-current-word {
+  font-family:'Bebas Neue',cursive; font-size:52px;
+  text-align:center; letter-spacing:4px; margin-bottom:8px;
+  color:var(--white); animation:scaleIn 0.3s ease both;
+}
+.wg-prompt {
+  text-align:center; font-size:13px; color:var(--muted);
+  margin-bottom:20px; min-height:20px;
+}
+.wg-prompt span { color:var(--red); font-family:'Bebas Neue',cursive; font-size:18px; letter-spacing:2px; }
+.wg-input-wrap { }
+.wg-input {
+  width:100%; background:var(--card);
+  border:1px solid rgba(255,59,78,0.35);
+  border-radius:12px; color:var(--white);
+  padding:16px 18px; font-size:20px;
+  font-family:'Noto Sans Georgian',sans-serif;
+  outline:none; text-align:center; letter-spacing:2px;
+  transition:border-color 0.2s, box-shadow 0.2s;
+}
+.wg-input:focus {
+  border-color:rgba(255,59,78,0.7);
+  box-shadow:0 0 0 3px rgba(255,59,78,0.1);
+}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="hdr">
     <div class="ht">ჯეირანი</div>
-    <div class="hs">Rock · Paper · Scissors</div>
+    <div class="hs">თამაშების კრებული</div>
   </div>
 
   <!-- HOME -->
   <div class="screen active" id="screen-home">
-    <div class="mg">
+    <div class="lbl" style="text-align:center;margin-bottom:14px;">ჯეირანი — კლდე · ქაღ. · მაკრ.</div>
+    <div class="mg" style="margin-bottom:16px;">
       <div class="mc" onclick="startGame(2)">
         <span class="mi">👥</span>
         <div class="mt">1 VS 1</div>
@@ -478,6 +542,13 @@ body::after {
         <div class="md">ყველა ყველას წინ</div>
         <div class="mx">5 გამარჯვება</div>
       </div>
+    </div>
+    <div class="lbl" style="text-align:center;margin-bottom:14px;">სიტყვა-ჯაჭვი</div>
+    <div class="mc" onclick="startWordGame()" style="margin-bottom:0;">
+      <span class="mi">🔤</span>
+      <div class="mt">სიტყვა-ჯაჭვი</div>
+      <div class="md">ბოლო ასოდან დაიწყე · 2 მოთამაშე</div>
+      <div class="mx">30 წამი · ვინც ვერ დაწერს — წააგებს</div>
     </div>
   </div>
 
@@ -534,6 +605,48 @@ body::after {
     <div class="rhl neu" id="rhl">—</div>
     <div class="rg" id="rg"></div>
     <button class="btn btn-gold" id="again-btn" onclick="location.reload()" style="display:none">ახალი თამაში</button>
+  </div>
+
+  <!-- WORD GAME LOBBY -->
+  <div class="screen" id="screen-word-lobby">
+    <div class="card">
+      <div class="lbl">🔗 გაუგზავნე ეს ლინკი</div>
+      <div class="link-wrap">
+        <div class="lv" id="wg-share-link">—</div>
+        <button class="cbtn" id="wg-copy-btn" onclick="copyWordLink()">კოპირება</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="lobby-count" id="wg-lobby-status">0 / 2 მოთამაშე</div>
+      <div class="pills" id="wg-pills"></div>
+    </div>
+    <div class="lobby-hint">მოწინააღმდეგის მოლოდინში...</div>
+  </div>
+
+  <!-- WORD GAME -->
+  <div class="screen" id="screen-word-game">
+    <div class="wg-header">
+      <div class="wg-scores" id="wg-scores"></div>
+      <div class="wg-timer-wrap">
+        <div class="wg-timer" id="wg-timer">30</div>
+        <div class="wg-timer-bar"><div class="wg-timer-fill" id="wg-timer-fill"></div></div>
+      </div>
+    </div>
+    <div class="wg-turn-label" id="wg-turn-label">მოლოდინი...</div>
+    <div class="wg-chain" id="wg-chain"></div>
+    <div class="wg-current-word" id="wg-current-word">—</div>
+    <div class="wg-prompt" id="wg-prompt"></div>
+    <div class="wg-input-wrap" id="wg-input-wrap" style="display:none">
+      <input class="wg-input" id="wg-input" type="text" placeholder="სიტყვა..." autocomplete="off" autocorrect="off" autocapitalize="off">
+      <button class="btn btn-primary" onclick="submitWord()" style="margin-top:10px;font-size:18px;">გაგზავნა</button>
+    </div>
+  </div>
+
+  <!-- WORD GAME RESULT -->
+  <div class="screen" id="screen-word-result">
+    <div class="rhl neu" id="wg-result-title">—</div>
+    <div class="card" id="wg-result-body" style="margin-bottom:16px;"></div>
+    <button class="btn btn-gold" onclick="location.reload()">ახალი თამაში</button>
   </div>
 </div>
 
@@ -606,7 +719,7 @@ function initFirebase(cfg){
     if(!snap.val()) toast('Firebase-ს ვერ უკავშირდება',true);
   });
   const hash=location.hash.replace('#','').trim().toUpperCase();
-  if(hash&&hash.length===6) joinRoom(hash);
+  if(hash&&hash.length===6&&!hash.startsWith('W')) joinRoom(hash);
 }
 
 /* ── UTILS ── */
@@ -894,6 +1007,241 @@ window.copyLink=function(){
     setTimeout(()=>{b.textContent='კოპირება';b.classList.remove('ok');},2000);
   });
 };
+
+/* ════════════════════════════════
+   WORD CHAIN GAME
+════════════════════════════════ */
+let wgRef=null, wgId=null, wgRoomId=null, wgIsHost=false;
+let wgMyId=null, wgPlayers={}, wgTimerIv=null;
+
+function getLastLetter(word){
+  return word.trim().slice(-1).toLowerCase();
+}
+
+window.startWordGame=function(){
+  if(!db){toast('Firebase არ არის ინიციალიზებული',true);return;}
+  wgIsHost=true; wgMyId='p0'; wgRoomId='W'+genId();
+  wgRef=db.ref('wgrooms/'+wgRoomId);
+  wgRef.set({
+    phase:'waiting',
+    players:{p0:{name:'მოთ. 1',connected:true}},
+    currentWord:'', currentTurn:'p0',
+    chain:[], createdAt:Date.now()
+  }).then(()=>{
+    wgRef.child('createdAt').onDisconnect().remove();
+    listenWordRoom();
+    updateWordLobby();
+    ss('word-lobby');
+  });
+};
+
+function joinWordRoom(code){
+  if(!db)return;
+  wgIsHost=false; wgRoomId=code;
+  ss('joining');
+  wgRef=db.ref('wgrooms/'+code);
+  wgRef.once('value').then(snap=>{
+    if(!snap.exists()){toast('ოთახი ვერ მოიძებნა',true);ss('home');return;}
+    const d=snap.val();
+    const existing=Object.keys(d.players||{});
+    if(existing.length>=2){toast('ოთახი სავსეა',true);ss('home');return;}
+    wgMyId='p1';
+    wgRef.child('players/p1').set({name:'მოთ. 2',connected:true});
+    listenWordRoom();
+  }).catch(()=>{toast('ოთახი ვერ მოიძებნა',true);ss('home');});
+}
+
+function listenWordRoom(){
+  wgRef.on('value',snap=>{
+    if(!snap.exists())return;
+    const d=snap.val();
+    wgPlayers=d.players||{};
+    if(d.phase==='waiting'){updateWordLobby();ss('word-lobby');}
+    else if(d.phase==='playing'){renderWordGame(d);}
+    else if(d.phase==='gameover'){renderWordResult(d);}
+  });
+}
+
+function updateWordLobby(){
+  const cnt=Object.keys(wgPlayers).length;
+  const el=document.getElementById('wg-lobby-status');
+  if(el)el.textContent=cnt+' / 2 მოთამაშე';
+  const link=location.origin+location.pathname+'#W'+wgRoomId.replace('W','');
+  const lv=document.getElementById('wg-share-link');if(lv)lv.textContent=link;
+  const pp=document.getElementById('wg-pills');
+  if(pp){
+    let h='';
+    for(let i=0;i<2;i++){
+      const id='p'+i,p=wgPlayers[id];
+      h+=p?`<div class="pill on">✓ ${p.name}</div>`:'<div class="pill blink">მოლოდინი...</div>';
+    }
+    pp.innerHTML=h;
+  }
+  if(wgIsHost&&cnt===2) setTimeout(()=>{
+    // pick random first word
+    const starters=['მთა','მზე','ხე','ქვა','წყალი','ღია','ვარდი','კატა','ძაღლი','ნიავი'];
+    const first=starters[Math.floor(Math.random()*starters.length)];
+    wgRef.update({phase:'playing',currentWord:first,currentTurn:'p1',chain:[{word:first,by:'host'}],turnStart:Date.now()});
+  },800);
+}
+
+let wgLastTurn=null;
+function renderWordGame(d){
+  ss('word-game');
+  const isMyTurn=d.currentTurn===wgMyId;
+  const other=wgMyId==='p0'?'p1':'p0';
+
+  // scores = chain words by each player
+  const myWords=(d.chain||[]).filter(w=>w.by===wgMyId).length;
+  const theirWords=(d.chain||[]).filter(w=>w.by===other).length;
+
+  // score bar
+  const sb=document.getElementById('wg-scores');
+  if(sb) sb.innerHTML=[wgMyId,other].map(id=>{
+    const cnt=(d.chain||[]).filter(w=>w.by===id).length;
+    const nm=wgPlayers[id]?wgPlayers[id].name:id;
+    return`<div class="sc ${id===wgMyId?'me':''}">
+      <div class="scn">${nm}${id===wgMyId?' ★':''}</div>
+      <div class="scv">${cnt}</div>
+      <div class="sct">სიტყვა</div>
+    </div>`;
+  }).join('');
+
+  // chain display (last 6)
+  const chain=d.chain||[];
+  const recent=chain.slice(-6);
+  const cc=document.getElementById('wg-chain');
+  if(cc) cc.innerHTML=recent.map(w=>`<div class="wg-chip ${w.by===wgMyId?'mine':'theirs'}">${w.word}</div>`).join('');
+
+  // current word
+  const cw=document.getElementById('wg-current-word');
+  if(cw) cw.textContent=d.currentWord||'—';
+
+  // prompt
+  const pr=document.getElementById('wg-prompt');
+  if(pr && d.currentWord) pr.innerHTML=isMyTurn
+    ? `დაიწყე ასოდან: <span>${getLastLetter(d.currentWord).toUpperCase()}</span>`
+    : `${wgPlayers[d.currentTurn]?wgPlayers[d.currentTurn].name:'მოწინ.'} წერს...`;
+
+  // input
+  const iw=document.getElementById('wg-input-wrap');
+  const inp=document.getElementById('wg-input');
+  if(iw) iw.style.display=isMyTurn?'block':'none';
+  if(isMyTurn && inp){inp.value='';setTimeout(()=>inp.focus(),100);}
+
+  // turn label
+  const tl=document.getElementById('wg-turn-label');
+  if(tl){
+    tl.textContent=isMyTurn?'შენი ჯერია':'მოწინ. წერს...';
+    tl.className='wg-turn-label'+(isMyTurn?' my-turn':'');
+  }
+
+  // timer — restart only on new turn
+  if(d.turnStart!==wgLastTurn){
+    wgLastTurn=d.turnStart;
+    startWgTimer(d.turnStart, d.currentTurn);
+  }
+}
+
+function startWgTimer(turnStart, turnPlayer){
+  clearWgTimer();
+  const LIMIT=30000;
+  const tf=document.getElementById('wg-timer-fill');
+  const tn=document.getElementById('wg-timer');
+  function tick(){
+    const elapsed=Date.now()-turnStart;
+    const rem=Math.max(0,LIMIT-elapsed);
+    const secs=Math.ceil(rem/1000);
+    if(tn){tn.textContent=secs;tn.className='wg-timer'+(secs<=5?' urgent':'');}
+    if(tf)tf.style.width=(rem/LIMIT*100)+'%';
+    if(rem<=0){
+      clearWgTimer();
+      if(wgIsHost){
+        // time ran out — turnPlayer loses
+        const winner=turnPlayer==='p0'?'p1':'p0';
+        wgRef.update({phase:'gameover',winner,reason:'timeout',loser:turnPlayer});
+      }
+    }
+  }
+  tick();
+  wgTimerIv=setInterval(tick,200);
+}
+function clearWgTimer(){if(wgTimerIv){clearInterval(wgTimerIv);wgTimerIv=null;}}
+
+window.submitWord=function(){
+  const inp=document.getElementById('wg-input');
+  if(!inp)return;
+  const word=inp.value.trim().toLowerCase().replace(/\s+/g,'');
+  if(!word){toast('სიტყვა შეიყვანე',true);return;}
+
+  wgRef.once('value').then(snap=>{
+    const d=snap.val();
+    if(d.currentTurn!==wgMyId){toast('შენი ჯერი არ არის',true);return;}
+    if(d.phase!=='playing')return;
+
+    const needed=getLastLetter(d.currentWord);
+    if(word[0]!==needed){
+      toast(`სიტყვა უნდა დაიწყოს "${needed.toUpperCase()}"-თი`,true);
+      return;
+    }
+    // check duplicate
+    const used=(d.chain||[]).map(w=>w.word);
+    if(used.includes(word)){toast('ეს სიტყვა უკვე გამოიყენეს',true);return;}
+
+    const newChain=[...(d.chain||[]),{word,by:wgMyId}];
+    const nextTurn=wgMyId==='p0'?'p1':'p0';
+    wgRef.update({
+      currentWord:word,
+      currentTurn:nextTurn,
+      chain:newChain,
+      turnStart:Date.now()
+    });
+    inp.value='';
+  });
+};
+
+// enter key
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.getElementById('wg-input')===document.activeElement) window.submitWord();
+});
+
+function renderWordResult(d){
+  clearWgTimer();
+  ss('word-result');
+  const rt=document.getElementById('wg-result-title');
+  const rb=document.getElementById('wg-result-body');
+  const iWon=d.winner===wgMyId;
+  const loserName=wgPlayers[d.loser]?wgPlayers[d.loser].name:'მოთამაშე';
+  const winnerName=wgPlayers[d.winner]?wgPlayers[d.winner].name:'მოთამაშე';
+
+  if(rt){
+    rt.textContent=iWon?'🏆 გაიმარჯვე!':winnerName+' — გამარჯვებული!';
+    rt.className='rhl '+(iWon?'win':'lose');
+  }
+  if(rb){
+    const reason=d.reason==='timeout'?`${loserName}-მ ვერ დაწერა 30 წამში`:'';
+    rb.innerHTML=`<div class="lbl">მიზეზი</div><div style="font-size:14px;color:var(--white)">${reason}</div>`;
+  }
+}
+
+window.copyWordLink=function(){
+  const link=document.getElementById('wg-share-link').textContent;
+  navigator.clipboard.writeText(link).then(()=>{
+    const b=document.getElementById('wg-copy-btn');
+    b.textContent='✓ კოპირდა';b.classList.add('ok');
+    setTimeout(()=>{b.textContent='კოპირება';b.classList.remove('ok');},2000);
+  });
+};
+
+/* ── override initFirebase to handle W-prefix rooms ── */
+const _origInit=initFirebase;
+// patch hash detection for word game
+window.addEventListener('load',()=>{
+  const hash=location.hash.replace('#','').trim().toUpperCase();
+  if(hash&&hash.startsWith('W')&&hash.length===7){
+    joinWordRoom('W'+hash.slice(1));
+  }
+});
 
 checkConfig();
 })();
