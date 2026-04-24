@@ -152,7 +152,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
       <svg class="cds" viewBox="0 0 64 64">
         <circle class="cdb" cx="32" cy="32" r="26"/>
         <circle class="cda" id="cda" cx="32" cy="32" r="26" stroke-dasharray="163.4" stroke-dashoffset="0"/>
-        <text class="cdn" id="cdn" x="32" y="32">3</text>
+        <text class="cdn" id="cdn" x="32" y="32">5</text>
       </svg>
       <div class="pkl" id="pkl">აირჩიე</div>
     </div>
@@ -347,12 +347,13 @@ function onPicking(d){
   resetBtns();
   ss('game');
   const elapsed=(Date.now()-d.pickStartTime)/1000;
-  const rem=Math.max(0.3,3-elapsed);
+  const rem=Math.max(0.3,5-elapsed);
   startTick(rem);
   clearTimeout(pickTimer);
   pickTimer=setTimeout(()=>{
     if(!myChoice){myChoice=rndMove();submitChoice(myChoice);}
   },Math.max(200,rem*1000-100));
+
 }
 
 function onResult(d){
@@ -362,7 +363,7 @@ function onResult(d){
   playerOrder.forEach(id=>{scores[id]=pl[id]?pl[id].score||0:0;});
   renderResult(d.roundWinners||[],d.gameWinner||null,d.round||{});
   ss('result');
-  if(!d.gameWinner&&isHost) setTimeout(startRound,3000);
+  if(!d.gameWinner&&isHost) setTimeout(startRound,5000);
 }
 
 window.pick=function(move){
@@ -449,7 +450,7 @@ function startTick(sec){
   function tick(){
     const r=Math.max(0,(end-Date.now())/1000);
     if(num)num.textContent=Math.ceil(r)||0;
-    if(arc)arc.setAttribute('stroke-dashoffset',CIRC*(1-r/3));
+    if(arc)arc.setAttribute('stroke-dashoffset',CIRC*(1-r/5));
     if(r<=0)clearTick();
   }
   tick();tickIv=setInterval(tick,80);
@@ -493,7 +494,7 @@ function resetBtns(){
   ['rock','paper','scissors'].forEach(m=>{const b=document.getElementById('b-'+m);if(b)b.classList.remove('sel','dis');});
   const pl=document.getElementById('pkl');if(pl)pl.textContent='აირჩიე';
   const arc=document.getElementById('cda');if(arc)arc.setAttribute('stroke-dashoffset','0');
-  const num=document.getElementById('cdn');if(num)num.textContent='3';
+  const num=document.getElementById('cdn');if(num)num.textContent='5';
 }
 
 function renderResult(rws,gw,picks){
