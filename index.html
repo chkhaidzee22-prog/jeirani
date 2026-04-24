@@ -454,82 +454,18 @@ body::after {
   transition: border-color 0.2s;
 }
 .setup-inp:focus { border-color: rgba(255,59,78,0.5); }
-
-/* ── WORD GAME ── */
-.mc:last-child { grid-column: 1/-1; }
-.wg-header { margin-bottom: 20px; }
-.wg-scores { display:flex; gap:8px; margin-bottom:14px; }
-.wg-timer-wrap { margin-bottom:6px; }
-.wg-timer {
-  font-family:'Bebas Neue',cursive; font-size:48px;
-  text-align:center; line-height:1; margin-bottom:8px;
-  transition: color 0.3s;
-}
-.wg-timer.urgent { color: var(--red); animation: urgentPulse 0.5s ease-in-out infinite; }
-@keyframes urgentPulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
-.wg-timer-bar {
-  height:4px; background:rgba(255,255,255,0.08);
-  border-radius:2px; overflow:hidden;
-}
-.wg-timer-fill {
-  height:100%; background:var(--red);
-  border-radius:2px; transition:width 0.5s linear, background 0.3s;
-  box-shadow: 0 0 8px var(--red-glow);
-}
-.wg-turn-label {
-  text-align:center; font-size:12px; letter-spacing:3px;
-  color:var(--muted); text-transform:uppercase; margin-bottom:16px;
-}
-.wg-turn-label.my-turn { color:var(--green); }
-.wg-chain {
-  display:flex; flex-wrap:wrap; gap:6px;
-  margin-bottom:16px; min-height:32px;
-  max-height:100px; overflow-y:auto;
-}
-.wg-chip {
-  background:rgba(255,255,255,0.06); border:1px solid var(--card-border);
-  border-radius:100px; padding:4px 12px; font-size:12px;
-  color:var(--muted); animation:fadeUp 0.2s ease both;
-}
-.wg-chip.mine { border-color:rgba(255,59,78,0.35); color:var(--white); }
-.wg-chip.theirs { border-color:rgba(232,184,109,0.3); color:var(--gold); }
-.wg-current-word {
-  font-family:'Bebas Neue',cursive; font-size:52px;
-  text-align:center; letter-spacing:4px; margin-bottom:8px;
-  color:var(--white); animation:scaleIn 0.3s ease both;
-}
-.wg-prompt {
-  text-align:center; font-size:13px; color:var(--muted);
-  margin-bottom:20px; min-height:20px;
-}
-.wg-prompt span { color:var(--red); font-family:'Bebas Neue',cursive; font-size:18px; letter-spacing:2px; }
-.wg-input-wrap { }
-.wg-input {
-  width:100%; background:var(--card);
-  border:1px solid rgba(255,59,78,0.35);
-  border-radius:12px; color:var(--white);
-  padding:16px 18px; font-size:20px;
-  font-family:'Noto Sans Georgian',sans-serif;
-  outline:none; text-align:center; letter-spacing:2px;
-  transition:border-color 0.2s, box-shadow 0.2s;
-}
-.wg-input:focus {
-  border-color:rgba(255,59,78,0.7);
-  box-shadow:0 0 0 3px rgba(255,59,78,0.1);
-}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="hdr">
     <div class="ht">ჯეირანი</div>
-    <div class="hs">თამაშების კრებული</div>
+    <div class="hs">Rock · Paper · Scissors</div>
   </div>
 
   <!-- HOME -->
   <div class="screen active" id="screen-home">
-    <div class="lbl" style="text-align:center;margin-bottom:14px;">ჯეირანი — კლდე · ქაღ. · მაკრ.</div>
-    <div class="mg" style="margin-bottom:16px;">
+    <div class="mg">
       <div class="mc" onclick="startGame(2)">
         <span class="mi">👥</span>
         <div class="mt">1 VS 1</div>
@@ -542,13 +478,6 @@ body::after {
         <div class="md">ყველა ყველას წინ</div>
         <div class="mx">5 გამარჯვება</div>
       </div>
-    </div>
-    <div class="lbl" style="text-align:center;margin-bottom:14px;">სიტყვა-ჯაჭვი</div>
-    <div class="mc" onclick="startWordGame()" style="margin-bottom:0;">
-      <span class="mi">🔤</span>
-      <div class="mt">სიტყვა-ჯაჭვი</div>
-      <div class="md">ბოლო ასოდან დაიწყე · 2 მოთამაშე</div>
-      <div class="mx">30 წამი · ვინც ვერ დაწერს — წააგებს</div>
     </div>
   </div>
 
@@ -605,48 +534,6 @@ body::after {
     <div class="rhl neu" id="rhl">—</div>
     <div class="rg" id="rg"></div>
     <button class="btn btn-gold" id="again-btn" onclick="location.reload()" style="display:none">ახალი თამაში</button>
-  </div>
-
-  <!-- WORD GAME LOBBY -->
-  <div class="screen" id="screen-word-lobby">
-    <div class="card">
-      <div class="lbl">🔗 გაუგზავნე ეს ლინკი</div>
-      <div class="link-wrap">
-        <div class="lv" id="wg-share-link">—</div>
-        <button class="cbtn" id="wg-copy-btn" onclick="copyWordLink()">კოპირება</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="lobby-count" id="wg-lobby-status">0 / 2 მოთამაშე</div>
-      <div class="pills" id="wg-pills"></div>
-    </div>
-    <div class="lobby-hint">მოწინააღმდეგის მოლოდინში...</div>
-  </div>
-
-  <!-- WORD GAME -->
-  <div class="screen" id="screen-word-game">
-    <div class="wg-header">
-      <div class="wg-scores" id="wg-scores"></div>
-      <div class="wg-timer-wrap">
-        <div class="wg-timer" id="wg-timer">30</div>
-        <div class="wg-timer-bar"><div class="wg-timer-fill" id="wg-timer-fill"></div></div>
-      </div>
-    </div>
-    <div class="wg-turn-label" id="wg-turn-label">მოლოდინი...</div>
-    <div class="wg-chain" id="wg-chain"></div>
-    <div class="wg-current-word" id="wg-current-word">—</div>
-    <div class="wg-prompt" id="wg-prompt"></div>
-    <div class="wg-input-wrap" id="wg-input-wrap" style="display:none">
-      <input class="wg-input" id="wg-input" type="text" placeholder="სიტყვა..." autocomplete="off" autocorrect="off" autocapitalize="off">
-      <button class="btn btn-primary" onclick="submitWord()" style="margin-top:10px;font-size:18px;">გაგზავნა</button>
-    </div>
-  </div>
-
-  <!-- WORD GAME RESULT -->
-  <div class="screen" id="screen-word-result">
-    <div class="rhl neu" id="wg-result-title">—</div>
-    <div class="card" id="wg-result-body" style="margin-bottom:16px;"></div>
-    <button class="btn btn-gold" onclick="location.reload()">ახალი თამაში</button>
   </div>
 </div>
 
