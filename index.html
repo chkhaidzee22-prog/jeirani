@@ -4,184 +4,162 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ჯეირანი</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+Georgian:wght@300;400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+Georgian:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
 <style>
-:root {
-  --bg:#080808; --surface:#111; --border:#1e1e1e; --b2:#2a2a2a;
-  --red:#e63946; --gold:#c9a84c; --green:#4caf50;
-  --white:#f0ece4; --gray:#555; --gray2:#333;
-}
+:root{--bg:#080808;--s:#111;--b2:#2a2a2a;--red:#e63946;--gold:#c9a84c;--green:#4caf50;--w:#f0ece4;--gr:#555;}
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body{height:100%;}
-body{
-  background:var(--bg); color:var(--white);
-  font-family:'Noto Sans Georgian',sans-serif;
-  min-height:100vh; display:flex; align-items:flex-start;
-  justify-content:center; padding:20px 16px 48px; overflow-x:hidden;
-}
-body::before{
-  content:''; position:fixed; inset:0;
-  background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(230,57,70,.07) 0%,transparent 60%);
-  pointer-events:none; z-index:0;
-}
-.wrap{width:100%;max-width:440px;position:relative;z-index:1;}
-.hdr{text-align:center;margin-bottom:36px;padding-top:8px;}
-.hdr-t{font-family:'Bebas Neue',cursive;font-size:68px;letter-spacing:8px;line-height:1;text-shadow:0 0 60px rgba(230,57,70,.25);}
-.hdr-s{font-size:11px;letter-spacing:5px;color:var(--gray);text-transform:uppercase;margin-top:4px;}
-.screen{display:none;}
-.screen.active{display:block;}
-.btn{
-  display:block;width:100%;padding:20px 16px;background:var(--red);border:none;color:white;
-  font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:3px;
-  cursor:pointer;transition:opacity .15s,transform .1s;text-align:center;
-}
-.btn:hover{opacity:.9;} .btn:active{transform:scale(.98);}
-.btn.ghost{background:transparent;border:1px solid var(--b2);color:var(--gray);font-size:14px;padding:14px;}
-.btn.ghost:hover{border-color:var(--gray);color:var(--white);}
+body{background:var(--bg);color:var(--w);font-family:'Noto Sans Georgian',sans-serif;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px 60px;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 40% at 50% 0%,rgba(230,57,70,.08) 0%,transparent 60%);pointer-events:none;}
+.wrap{width:100%;max-width:420px;position:relative;z-index:1;}
+.hdr{text-align:center;margin-bottom:40px;padding-top:4px;}
+.ht{font-family:'Bebas Neue',cursive;font-size:72px;letter-spacing:8px;line-height:1;text-shadow:0 0 60px rgba(230,57,70,.3);}
+.hs{font-size:11px;letter-spacing:5px;color:var(--gr);text-transform:uppercase;margin-top:4px;}
+.screen{display:none;}.screen.active{display:block;}
+.btn{display:block;width:100%;padding:18px;background:var(--red);border:none;color:#fff;font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:3px;cursor:pointer;transition:opacity .15s;text-align:center;}
+.btn:active{opacity:.8;}
 .btn.gold{background:var(--gold);}
-.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px;}
-.mode-card{
-  background:var(--surface);border:1px solid var(--b2);
-  padding:28px 16px;text-align:center;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;
-}
-.mode-card::before{content:'';position:absolute;inset:0;background:var(--red);opacity:0;transition:opacity .15s;}
-.mode-card:hover::before{opacity:.06;} .mode-card:hover{border-color:var(--red);}
-.mode-icon{font-size:40px;display:block;margin-bottom:12px;}
-.mode-title{font-family:'Bebas Neue',cursive;font-size:26px;letter-spacing:2px;}
-.mode-desc{font-size:11px;color:var(--gray);margin-top:6px;letter-spacing:1px;}
-.mode-tgt{font-size:10px;color:var(--gold);margin-top:4px;letter-spacing:1px;}
-.div{display:flex;align-items:center;gap:12px;margin:24px 0;}
-.div-line{flex:1;height:1px;background:var(--border);}
-.div-txt{font-size:11px;color:var(--gray);letter-spacing:2px;text-transform:uppercase;}
-.inp{
-  width:100%;background:var(--surface);border:1px solid var(--b2);
-  color:var(--white);padding:14px 16px;font-family:'Noto Sans Georgian',sans-serif;
-  font-size:16px;outline:none;transition:border-color .15s;margin-bottom:10px;
-  text-align:center;letter-spacing:4px;text-transform:uppercase;
-}
-.inp:focus{border-color:var(--red);}
-.inp::placeholder{color:var(--gray);letter-spacing:2px;font-size:13px;}
-.lbl{font-size:10px;letter-spacing:3px;color:var(--gray);text-transform:uppercase;margin-bottom:8px;}
-.box{background:var(--surface);border:1px solid var(--b2);padding:20px;margin-bottom:16px;}
-.link-row{display:flex;gap:8px;align-items:flex-start;margin-top:10px;}
-.link-val{flex:1;font-size:12px;color:var(--gold);word-break:break-all;font-family:monospace;line-height:1.5;}
-.copy-btn{background:var(--b2);border:none;color:var(--white);padding:8px 14px;font-size:11px;cursor:pointer;white-space:nowrap;transition:background .15s;}
-.copy-btn:hover{background:#3a3a3a;} .copy-btn.done{background:#1a3a1a;color:var(--green);}
-.code-big{font-family:'Bebas Neue',cursive;font-size:52px;letter-spacing:12px;color:var(--gold);text-align:center;margin:16px 0 4px;}
-.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
-.pill{background:var(--b2);padding:6px 14px;font-size:12px;letter-spacing:1px;border:1px solid var(--b2);}
-.pill.on{border-color:var(--green);color:var(--green);background:#0d1f0d;}
-.pill.off{color:var(--gray);animation:blink 1.2s infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
-.scores-bar{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap;}
-.sc{flex:1;min-width:0;background:var(--surface);border:1px solid var(--b2);padding:10px 8px;text-align:center;}
-.sc.me{border-color:var(--red);background:#1a0e0f;}
-.sc-n{font-size:10px;letter-spacing:1px;color:var(--gray);text-transform:uppercase;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.sc-v{font-family:'Bebas Neue',cursive;font-size:36px;line-height:1;}
-.sc-t{font-size:10px;color:var(--gray);margin-top:2px;}
-.cd-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:28px;}
-.cd-svg{width:80px;height:80px;}
-.cd-bg{fill:none;stroke:var(--b2);stroke-width:4;}
-.cd-arc{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .08s linear;}
-.cd-num{font-family:'Bebas Neue',cursive;font-size:36px;fill:var(--white);text-anchor:middle;dominant-baseline:central;}
-.pk-lbl{font-size:12px;letter-spacing:3px;color:var(--gray);text-transform:uppercase;margin-top:10px;}
+.btn.ghost{background:transparent;border:1px solid var(--b2);color:var(--gr);font-size:14px;padding:14px;margin-top:10px;}
+.btn.ghost:hover{border-color:var(--gr);color:var(--w);}
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.mc{background:var(--s);border:1px solid var(--b2);padding:28px 12px;text-align:center;cursor:pointer;transition:border-color .15s;}
+.mc:hover{border-color:var(--red);}
+.mi{font-size:40px;display:block;margin-bottom:10px;}
+.mt{font-family:'Bebas Neue',cursive;font-size:26px;letter-spacing:2px;}
+.md{font-size:11px;color:var(--gr);margin-top:4px;}
+.mx{font-size:10px;color:var(--gold);margin-top:4px;}
+.box{background:var(--s);border:1px solid var(--b2);padding:20px;margin-bottom:14px;}
+.lbl{font-size:10px;letter-spacing:3px;color:var(--gr);text-transform:uppercase;margin-bottom:8px;}
+.link-row{display:flex;gap:8px;align-items:center;margin-top:8px;}
+.lv{flex:1;font-size:12px;color:var(--gold);word-break:break-all;font-family:monospace;line-height:1.5;}
+.cbtn{background:var(--b2);border:none;color:var(--w);padding:8px 12px;font-size:11px;cursor:pointer;white-space:nowrap;}
+.cbtn.ok{background:#1a3a1a;color:var(--green);}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.pill{padding:7px 14px;font-size:12px;border:1px solid var(--b2);color:var(--gr);}
+.pill.on{border-color:var(--green);color:var(--green);background:#0d1a0d;}
+.pill.blink{animation:bl 1.2s infinite;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+.sbar{display:flex;gap:6px;margin-bottom:22px;}
+.sc{flex:1;background:var(--s);border:1px solid var(--b2);padding:10px 6px;text-align:center;}
+.sc.me{border-color:var(--red);background:#150b0c;}
+.scn{font-size:10px;color:var(--gr);margin-bottom:2px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.scv{font-family:'Bebas Neue',cursive;font-size:34px;line-height:1;}
+.sct{font-size:10px;color:var(--gr);}
+.cdw{display:flex;flex-direction:column;align-items:center;margin-bottom:26px;}
+.cds{width:80px;height:80px;}
+.cdb{fill:none;stroke:var(--b2);stroke-width:4;}
+.cda{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;}
+.cdn{font-family:'Bebas Neue',cursive;font-size:36px;fill:var(--w);text-anchor:middle;dominant-baseline:central;}
+.pkl{font-size:12px;letter-spacing:3px;color:var(--gr);text-transform:uppercase;margin-top:8px;}
 .choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.cbtn{
-  aspect-ratio:1;background:var(--surface);border:1px solid var(--b2);
-  cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
-  transition:all .15s;position:relative;overflow:hidden;
-}
-.cbtn:hover{border-color:var(--red);background:#140b0c;}
-.cbtn.sel{border-color:var(--red);background:#1a0e0f;}
-.cbtn.sel::after{content:'';position:absolute;inset:0;background:var(--red);opacity:.07;}
-.cbtn.dis{opacity:.3;cursor:not-allowed;pointer-events:none;}
-.ch-e{font-size:38px;line-height:1;}
-.ch-l{font-size:10px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;}
-.cbtn:hover .ch-l,.cbtn.sel .ch-l{color:var(--white);}
-.rg{display:grid;gap:10px;margin-bottom:24px;}
+.ch{aspect-ratio:1;background:var(--s);border:1px solid var(--b2);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:border-color .1s;position:relative;overflow:hidden;}
+.ch:hover{border-color:var(--red);background:#140b0c;}
+.ch.sel{border-color:var(--red);background:#1a0e0f;}
+.ch.sel::after{content:'';position:absolute;inset:0;background:var(--red);opacity:.07;}
+.ch.dis{opacity:.3;pointer-events:none;}
+.ce{font-size:40px;line-height:1;}
+.cl{font-size:10px;letter-spacing:2px;color:var(--gr);text-transform:uppercase;}
+.ch:hover .cl,.ch.sel .cl{color:var(--w);}
+.rg{display:grid;gap:10px;margin-bottom:22px;}
 .rg.p2{grid-template-columns:1fr 1fr;}
 .rg.p4{grid-template-columns:1fr 1fr;}
-.rc{background:var(--surface);border:1px solid var(--b2);padding:16px 12px;text-align:center;position:relative;}
-.rc.rw{border-color:var(--gold);background:#1a1208;}
+.rc{background:var(--s);border:1px solid var(--b2);padding:16px 10px;text-align:center;position:relative;}
+.rc.rw{border-color:var(--gold);background:#181208;}
 .rc.me{border-color:var(--red);}
 .rc.rw.me{border-color:var(--gold);}
-.re{font-size:44px;line-height:1;margin-bottom:8px;}
-.rn{font-size:11px;letter-spacing:1px;color:var(--gray);}
-.rs{font-family:'Bebas Neue',cursive;font-size:28px;margin-top:4px;}
-.wb{position:absolute;top:6px;right:6px;background:var(--gold);color:#000;font-size:10px;padding:2px 7px;font-family:'Bebas Neue',cursive;}
-.rhl{font-family:'Bebas Neue',cursive;font-size:48px;letter-spacing:4px;text-align:center;margin-bottom:24px;line-height:1;}
+.re{font-size:42px;line-height:1;margin-bottom:6px;}
+.rn{font-size:11px;color:var(--gr);}
+.rs{font-family:'Bebas Neue',cursive;font-size:26px;margin-top:4px;}
+.wb{position:absolute;top:5px;right:5px;background:var(--gold);color:#000;font-size:10px;padding:2px 6px;font-family:'Bebas Neue',cursive;}
+.rhl{font-family:'Bebas Neue',cursive;font-size:48px;letter-spacing:4px;text-align:center;margin-bottom:22px;line-height:1;}
 .rhl.win{color:var(--gold);text-shadow:0 0 30px rgba(201,168,76,.4);}
-.rhl.lose{color:var(--red);} .rhl.draw{color:var(--gray);} .rhl.neu{color:var(--white);}
-.status-box{background:var(--surface);border:1px solid var(--b2);padding:20px;text-align:center;margin-bottom:20px;}
-.pulse{display:inline-block;width:8px;height:8px;background:var(--red);border-radius:50%;margin-right:8px;animation:pa 1.4s infinite;vertical-align:middle;}
-@keyframes pa{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);padding:12px 22px;font-size:13px;letter-spacing:1px;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap;border:1px solid transparent;}
+.rhl.lose{color:var(--red);}.rhl.draw{color:var(--gr);}.rhl.neu{color:var(--w);}
+.div{display:flex;align-items:center;gap:10px;margin:20px 0;}
+.dl{flex:1;height:1px;background:var(--b2);}
+.dt{font-size:10px;color:var(--gr);letter-spacing:2px;text-transform:uppercase;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(12px);padding:12px 20px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap;border:1px solid transparent;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+/* SETUP OVERLAY */
+.setup{position:fixed;inset:0;background:rgba(8,8,8,.97);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;}
+.setup-box{max-width:400px;width:100%;}
+.setup-title{font-family:'Bebas Neue',cursive;font-size:32px;letter-spacing:3px;color:var(--red);margin-bottom:16px;}
+.setup-step{background:var(--s);border:1px solid var(--b2);padding:14px;margin-bottom:8px;font-size:13px;line-height:1.7;}
+.setup-step b{color:var(--gold);}
+.setup-step a{color:var(--red);}
+.setup-inp{width:100%;background:#000;border:1px solid var(--b2);color:var(--w);padding:12px;font-family:monospace;font-size:12px;outline:none;margin-top:8px;resize:vertical;height:120px;}
+.setup-inp:focus{border-color:var(--red);}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="hdr">
-    <div class="hdr-t">ᲯᲔᲘᲠᲐᲜᲘ</div>
-    <div class="hdr-s">Rock · Paper · Scissors</div>
+    <div class="ht">ᲯᲔᲘᲠᲐᲜᲘ</div>
+    <div class="hs">Rock · Paper · Scissors</div>
   </div>
 
   <!-- HOME -->
   <div class="screen active" id="screen-home">
-    <div class="lbl" style="text-align:center;margin-bottom:16px;">აირჩიე რეჟიმი</div>
-    <div class="mode-grid">
-      <div class="mode-card" onclick="selectMode(2)">
-        <span class="mode-icon">👥</span>
-        <div class="mode-title">1 vs 1</div>
-        <div class="mode-desc">ორი მოთამაშე</div>
-        <div class="mode-tgt">პირველი 10 გამარჯვება</div>
+    <div class="mg">
+      <div class="mc" onclick="startGame(2)">
+        <span class="mi">👥</span>
+        <div class="mt">1 VS 1</div>
+        <div class="md">ორი მოთამაშე</div>
+        <div class="mx">10 გამარჯვება</div>
       </div>
-      <div class="mode-card" onclick="selectMode(4)">
-        <span class="mode-icon">⚔️</span>
-        <div class="mode-title">4 მოთ.</div>
-        <div class="mode-desc">ყველა ყველას წინ</div>
-        <div class="mode-tgt">პირველი 5 გამარჯვება</div>
+      <div class="mc" onclick="startGame(4)">
+        <span class="mi">⚔️</span>
+        <div class="mt">4 მოთ.</div>
+        <div class="md">ყველა ყველას წინ</div>
+        <div class="mx">5 გამარჯვება</div>
       </div>
     </div>
-
   </div>
 
   <!-- LOBBY -->
   <div class="screen" id="screen-lobby">
     <div class="box">
-      <div class="lbl">🔗 ლინკი</div>
+      <div class="lbl">🔗 გაუგზავნე ეს ლინკი</div>
       <div class="link-row">
-        <div class="link-val" id="share-link">—</div>
-        <button class="copy-btn" id="copy-btn" onclick="copyLink()">კოპირება</button>
+        <div class="lv" id="share-link">—</div>
+        <button class="cbtn" id="copy-btn" onclick="copyLink()">კოპირება</button>
       </div>
     </div>
     <div class="box">
-      <div class="lbl" style="text-align:center" id="lobby-count">0 / 0</div>
+      <div class="lbl" style="text-align:center" id="lobby-status">0 / 0 მოთამაშე</div>
+      <div class="pills" id="pills"></div>
     </div>
-    <div class="lbl">მოთამაშეები</div>
-    <div class="pills" id="pills"></div>
+    <div style="font-size:12px;color:var(--gr);text-align:center;margin-top:8px;">
+      მოწინააღმდეგის მოლოდინში...
+    </div>
   </div>
 
   <!-- JOINING -->
   <div class="screen" id="screen-joining">
-    <div class="status-box"><span class="pulse"></span><span style="font-size:14px;letter-spacing:2px;">დაკავშირება...</span></div>
+    <div class="box" style="text-align:center;padding:32px;">
+      <div style="font-size:32px;margin-bottom:12px;">⏳</div>
+      <div style="font-size:14px;letter-spacing:2px;color:var(--gr);">დაკავშირება...</div>
+    </div>
   </div>
 
   <!-- GAME -->
   <div class="screen" id="screen-game">
-    <div class="scores-bar" id="scores-bar"></div>
-    <div class="cd-wrap">
-      <svg class="cd-svg" viewBox="0 0 64 64">
-        <circle class="cd-bg" cx="32" cy="32" r="26"/>
-        <circle class="cd-arc" id="cd-arc" cx="32" cy="32" r="26" stroke-dasharray="163.4" stroke-dashoffset="0"/>
-        <text class="cd-num" id="cd-num" x="32" y="32">3</text>
+    <div class="sbar" id="sbar"></div>
+    <div class="cdw">
+      <svg class="cds" viewBox="0 0 64 64">
+        <circle class="cdb" cx="32" cy="32" r="26"/>
+        <circle class="cda" id="cda" cx="32" cy="32" r="26" stroke-dasharray="163.4" stroke-dashoffset="0"/>
+        <text class="cdn" id="cdn" x="32" y="32">3</text>
       </svg>
-      <div class="pk-lbl" id="pk-lbl">აირჩიე</div>
+      <div class="pkl" id="pkl">აირჩიე</div>
     </div>
     <div class="choices">
-      <button class="cbtn" id="btn-rock" onclick="pick('rock')"><div class="ch-e">✊🏿</div><div class="ch-l">კლდე</div></button>
-      <button class="cbtn" id="btn-paper" onclick="pick('paper')"><div class="ch-e">✋🏿</div><div class="ch-l">ქაღალდი</div></button>
-      <button class="cbtn" id="btn-scissors" onclick="pick('scissors')"><div class="ch-e">✌🏿</div><div class="ch-l">მაკრ.</div></button>
+      <button class="ch" id="b-rock" onclick="pick('rock')"><div class="ce">✊🏿</div><div class="cl">კლდე</div></button>
+      <button class="ch" id="b-paper" onclick="pick('paper')"><div class="ce">✋🏿</div><div class="cl">ქაღ.</div></button>
+      <button class="ch" id="b-scissors" onclick="pick('scissors')"><div class="ce">✌🏿</div><div class="cl">მაკრ.</div></button>
     </div>
   </div>
 
@@ -189,10 +167,34 @@ body::before{
   <div class="screen" id="screen-result">
     <div class="rhl neu" id="rhl">—</div>
     <div class="rg" id="rg"></div>
-    <button class="btn gold" id="pab" onclick="location.reload()" style="display:none">ახალი თამაში</button>
+    <button class="btn gold" id="again-btn" onclick="location.reload()" style="display:none">ახალი თამაში</button>
   </div>
 </div>
+
 <div class="toast" id="toast"></div>
+
+<!-- SETUP OVERLAY -->
+<div class="setup" id="setup-overlay">
+  <div class="setup-box">
+    <div class="setup-title">⚙️ პირველი გაშვება</div>
+    <div class="setup-step">
+      <b>1.</b> გახსენი <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a><br>
+      "Add project" → სახელი: <b>jeirani</b> → Continue → Create
+    </div>
+    <div class="setup-step">
+      <b>2.</b> Build → <b>Realtime Database</b> → Create Database → Start in <b>test mode</b> → Enable
+    </div>
+    <div class="setup-step">
+      <b>3.</b> Project Settings (⚙️) → General → "Add app" → Web (&lt;/&gt;) → Register app → კოპირება გააკეთე <b>firebaseConfig</b> ობიექტის შიგთავსი
+    </div>
+    <textarea class="setup-inp" id="config-input" placeholder='apiKey: "...",
+authDomain: "...",
+databaseURL: "...",
+projectId: "...",
+...'></textarea>
+    <button class="btn" style="margin-top:10px;" onclick="saveConfig()">შენახვა და გაშვება</button>
+  </div>
+</div>
 
 <script>
 (function(){
@@ -200,12 +202,55 @@ const MOVES={rock:'✊🏿',paper:'✋🏿',scissors:'✌🏿'};
 const NAMES={rock:'კლდე',paper:'ქაღ.',scissors:'მაკრ.'};
 const CIRC=163.4;
 
-let peer=null,isHost=false,myPeerId=null,gameMode=null,roomId=null;
-let clientConns={},hostConn=null;
-let playerOrder=[],playerNames={},scores={},choices={};
-let myChoice=null,pickStartTime=null,pickTimer=null,tickIv=null;
+let db=null, roomRef=null;
+let isHost=false, myId=null, roomId=null, gameMode=null;
+let playerOrder=[], playerNames={}, scores={};
+let myChoice=null, tickIv=null, pickTimer=null;
+let unsubscribes=[];
 
-function genRoom(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
+/* ── SETUP ── */
+function checkConfig(){
+  const cfg={
+    apiKey:"AIzaSyB4KGfXL9sBh7EAHa7_MZf-6WNAlrGZyZE",
+    authDomain:"jeirani-81d00.firebaseapp.com",
+    databaseURL:"https://jeirani-81d00-default-rtdb.firebaseio.com",
+    projectId:"jeirani-81d00",
+    storageBucket:"jeirani-81d00.firebasestorage.app",
+    messagingSenderId:"322640614806",
+    appId:"1:322640614806:web:c25332196ec7db8bdd79b7",
+    measurementId:"G-K1KG4P54K1"
+  };
+  initFirebase(cfg);
+  document.getElementById('setup-overlay').style.display='none';
+}
+
+window.saveConfig=function(){
+  const raw=document.getElementById('config-input').value.trim();
+  try{
+    // wrap in object to parse
+    const cfg=eval('(function(){return {'+raw+'}})()');
+    if(!cfg.apiKey||!cfg.databaseURL) throw new Error('missing fields');
+    localStorage.setItem('fb_config',JSON.stringify(cfg));
+    initFirebase(cfg);
+    document.getElementById('setup-overlay').style.display='none';
+  }catch(e){
+    toast('კონფიგი არასწორია — სცადე ხელახლა',true);
+  }
+};
+
+function initFirebase(cfg){
+  if(!firebase.apps.length) firebase.initializeApp(cfg);
+  db=firebase.database();
+  // check connection
+  db.ref('.info/connected').on('value',snap=>{
+    if(!snap.val()) toast('Firebase-ს ვერ უკავშირდება',true);
+  });
+  // auto-join if hash
+  const hash=location.hash.replace('#','').trim().toUpperCase();
+  if(hash&&hash.length===6) joinRoom(hash);
+}
+
+/* ── UTILS ── */
 function ss(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');}
 function toast(msg,bad){
   const t=document.getElementById('toast');
@@ -215,146 +260,191 @@ function toast(msg,bad){
   t.style.borderColor=bad?'#4a1a1a':'#1a4a1a';
   t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);
 }
-function res(a,b){if(a===b)return'draw';if((a==='rock'&&b==='scissors')||(a==='paper'&&b==='rock')||(a==='scissors'&&b==='paper'))return'win';return'lose';}
-function rnd(){return['rock','paper','scissors'][Math.floor(Math.random()*3)];}
-function myId(){return isHost?'HOST':myPeerId;}
+function genId(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
+function getRes(a,b){if(a===b)return'draw';if((a==='rock'&&b==='scissors')||(a==='paper'&&b==='rock')||(a==='scissors'&&b==='paper'))return'win';return'lose';}
+function rndMove(){return['rock','paper','scissors'][Math.floor(Math.random()*3)];}
 
-function loadPeer(cb){
-  if(typeof Peer!=='undefined'){cb();return;}
-  const s=document.createElement('script');
-  s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js';
-  s.onload=cb; s.onerror=()=>toast('PeerJS ვერ ჩაიტვირთა',true);
-  document.head.appendChild(s);
-}
+/* ── HOST: CREATE ROOM ── */
+window.startGame=function(mode){
+  if(!db){toast('Firebase არ არის ინიციალიზებული',true);return;}
+  gameMode=mode; isHost=true;
+  myId='p0'; roomId=genId();
+  playerOrder=['p0'];
+  playerNames={'p0':'მოთ. 1'};
+  scores={'p0':0};
 
-/* HOST */
-function createGame(mode){
-  gameMode=mode;isHost=true;roomId=genRoom();
-  myPeerId='HOST';playerOrder=['HOST'];
-  playerNames={'HOST':'მოთ. 1'};scores={'HOST':0};
-  loadPeer(()=>{
-    peer=new Peer('jeirani-'+roomId,{host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0});
-    peer.on('open',()=>{updateLobby();ss('lobby');});
-    peer.on('connection',onConn);
-    peer.on('error',e=>{if(e.type==='unavailable-id'){peer.destroy();roomId=genRoom();createGame(mode);}else toast('შეცდომა',true);});
-  });
-}
-
-function onConn(conn){
-  conn.on('open',()=>{
-    if(playerOrder.length>=gameMode){conn.send({type:'full'});conn.close();return;}
-    const pid=conn.peer,num=playerOrder.length+1;
-    clientConns[pid]=conn;
-    playerNames[pid]='მოთ. '+num;
-    scores[pid]=0;
-    playerOrder.push(pid);
-    bcast('waiting');
+  roomRef=db.ref('rooms/'+roomId);
+  roomRef.set({
+    mode, phase:'waiting',
+    players:{p0:{name:'მოთ. 1',score:0,connected:true}},
+    round:{}, roundWinners:[], gameWinner:null,
+    pickStartTime:0, createdAt:Date.now()
+  }).then(()=>{
+    // auto-cleanup after 2 hours
+    roomRef.child('createdAt').onDisconnect().remove();
+    listenRoom();
     updateLobby();
-    if(playerOrder.length===gameMode)setTimeout(startRound,600);
+    ss('lobby');
+  }).catch(e=>toast('შეცდომა: '+e.message,true));
+};
+
+/* ── CLIENT: JOIN ROOM ── */
+function joinRoom(code){
+  if(!db){return;}
+  roomId=code; isHost=false;
+  ss('joining');
+  roomRef=db.ref('rooms/'+roomId);
+  roomRef.once('value').then(snap=>{
+    if(!snap.exists()){toast('ოთახი ვერ მოიძებნა',true);ss('home');return;}
+    const data=snap.val();
+    gameMode=data.mode;
+    const existingPlayers=Object.keys(data.players||{});
+    if(existingPlayers.length>=gameMode){toast('ოთახი სავსეა',true);ss('home');return;}
+    // assign player id
+    myId='p'+existingPlayers.length;
+    const num=existingPlayers.length+1;
+    roomRef.child('players/'+myId).set({name:'მოთ. '+num,score:0,connected:true});
+    listenRoom();
+  }).catch(()=>{toast('ოთახი ვერ მოიძებნა',true);ss('home');});
+}
+
+/* ── LISTEN ── */
+function listenRoom(){
+  const off=roomRef.on('value',snap=>{
+    if(!snap.exists())return;
+    const d=snap.val();
+    gameMode=d.mode||gameMode;
+    // sync players
+    const pl=d.players||{};
+    playerOrder=Object.keys(pl).sort();
+    playerOrder.forEach(id=>{
+      playerNames[id]=pl[id].name||id;
+      scores[id]=pl[id].score||0;
+    });
+    if(d.phase==='waiting'){updateLobby();ss('lobby');}
+    else if(d.phase==='picking'){onPicking(d);}
+    else if(d.phase==='result'){onResult(d);}
   });
-  conn.on('data',d=>{if(d.type==='choice')choices[conn.peer]=d.choice;});
-  conn.on('close',()=>{delete clientConns[conn.peer];toast('მოთამაშე გათიშდა',true);});
+  unsubscribes.push(()=>roomRef.off('value',off));
 }
 
+/* ── GAME FLOW ── */
 function startRound(){
-  choices={};myChoice=null;pickStartTime=Date.now();
-  renderScores();resetBtns();ss('game');
-  bcast('picking');
-  startTick(3);
-  pickTimer=setTimeout(resolveRound,3300);
+  if(!isHost)return;
+  myChoice=null;
+  const start=Date.now();
+  roomRef.update({phase:'picking',round:{},pickStartTime:start,roundWinners:[],gameWinner:null});
 }
 
-function resolveRound(){
+function onPicking(d){
+  if(document.getElementById('screen-game').classList.contains('active')){
+    // already in game, just update scores
+    renderScores();
+    return;
+  }
+  myChoice=null;
+  renderScores();
+  resetBtns();
+  ss('game');
+  const elapsed=(Date.now()-d.pickStartTime)/1000;
+  const rem=Math.max(0.3,3-elapsed);
+  startTick(rem);
+  clearTimeout(pickTimer);
+  pickTimer=setTimeout(()=>{
+    if(!myChoice){myChoice=rndMove();submitChoice(myChoice);}
+  },Math.max(200,rem*1000-100));
+}
+
+function onResult(d){
   clearTick();clearTimeout(pickTimer);
-  playerOrder.forEach(id=>{if(!choices[id])choices[id]=rnd();});
-  if(!choices['HOST'])choices['HOST']=rnd();
+  // sync scores from players node
+  const pl=d.players||{};
+  playerOrder.forEach(id=>{scores[id]=pl[id]?pl[id].score||0:0;});
+  renderResult(d.roundWinners||[],d.gameWinner||null,d.round||{});
+  ss('result');
+  if(!d.gameWinner&&isHost) setTimeout(startRound,3000);
+}
+
+window.pick=function(move){
+  if(myChoice)return;
+  myChoice=move;
+  submitChoice(move);
+  ['rock','paper','scissors'].forEach(m=>{
+    const b=document.getElementById('b-'+m);
+    if(b){b.classList.add('dis');if(m===move)b.classList.add('sel');}
+  });
+  const pl=document.getElementById('pkl');if(pl)pl.textContent='✓ '+NAMES[move];
+};
+
+function submitChoice(move){
+  roomRef.child('round/'+myId).set(move).then(()=>{
+    if(!isHost)return;
+    // host checks if everyone picked
+    checkAllPicked();
+  });
+}
+
+function checkAllPicked(){
+  roomRef.child('round').once('value').then(snap=>{
+    const picks=snap.val()||{};
+    const allIn=playerOrder.every(id=>picks[id]);
+    if(allIn) resolveRound(picks);
+  });
+}
+
+// host also watches round for completion
+let roundWatch=null;
+function watchRound(){
+  if(roundWatch)roomRef.child('round').off('value',roundWatch);
+  roundWatch=roomRef.child('round').on('value',snap=>{
+    if(!isHost)return;
+    const picks=snap.val()||{};
+    const allIn=playerOrder.length>0&&playerOrder.every(id=>picks[id]);
+    if(allIn) resolveRound(picks);
+  });
+}
+
+function resolveRound(picks){
+  if(!isHost)return;
+  // fill missing
+  playerOrder.forEach(id=>{if(!picks[id])picks[id]=rndMove();});
 
   let rws=[];
   if(gameMode===2){
-    const[a,b]=playerOrder,r=res(choices[a],choices[b]);
+    const[a,b]=playerOrder;
+    const r=getRes(picks[a],picks[b]);
     if(r==='win')rws=[a];else if(r==='lose')rws=[b];
   }else{
     const rs={};playerOrder.forEach(id=>rs[id]=0);
     for(let i=0;i<playerOrder.length;i++)
       for(let j=i+1;j<playerOrder.length;j++){
-        const r=res(choices[playerOrder[i]],choices[playerOrder[j]]);
+        const r=getRes(picks[playerOrder[i]],picks[playerOrder[j]]);
         if(r==='win')rs[playerOrder[i]]++;else if(r==='lose')rs[playerOrder[j]]++;
       }
     const mx=Math.max(...Object.values(rs));
     if(mx>0)rws=playerOrder.filter(id=>rs[id]===mx);
   }
-  rws.forEach(id=>scores[id]++);
+
+  // update scores
   const tgt=gameMode===2?10:5;
-  const gw=playerOrder.find(id=>scores[id]>=tgt);
-  bcast('result',rws,gw);
-  renderResult(rws,gw);
-  ss('result');
-  if(!gw)setTimeout(startRound,3200);
-}
+  const scoreUpdates={};
+  rws.forEach(id=>{
+    scores[id]=(scores[id]||0)+1;
+    scoreUpdates['players/'+id+'/score']=scores[id];
+  });
+  const gw=playerOrder.find(id=>(scores[id]||0)>=tgt)||null;
 
-function bcast(phase,rws,gw){
-  const s=buildState(phase,rws,gw);
-  Object.values(clientConns).forEach(c=>{if(c.open)c.send({type:'state',state:s});});
-}
-
-function buildState(phase,rws,gw){
-  return{
-    mode:gameMode,playerOrder,playerNames,scores,
-    choices:phase==='result'?{...choices}:null,
-    phase,roundWinners:rws||[],gameWinner:gw||null,
-    pickStartTime:phase==='picking'?pickStartTime:null,
-    target:gameMode===2?10:5
-  };
-}
-
-/* CLIENT */
-function joinGame(code){
-  isHost=false;roomId=code;ss('joining');
-  loadPeer(()=>{
-    peer=new Peer(undefined,{host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0});
-    peer.on('open',pid=>{
-      myPeerId=pid;
-      hostConn=peer.connect('jeirani-'+code,{reliable:true});
-      hostConn.on('data',d=>{
-        if(d.type==='state')onState(d.state);
-        if(d.type==='full'){toast('სივრცე სავსეა',true);ss('home');peer.destroy();}
-      });
-      hostConn.on('error',()=>toast('შეცდომა',true));
-      hostConn.on('close',()=>{toast('კავშირი გაწყდა',true);setTimeout(()=>location.reload(),1500);});
-      setTimeout(()=>{if(!hostConn.open){toast('კოდი ვერ მოიძებნა',true);ss('home');peer.destroy();}},9000);
-    });
-    peer.on('error',e=>{toast(e.type==='peer-unavailable'?'კოდი ვერ მოიძებნა':'შეცდომა',true);ss('home');});
+  roomRef.update({
+    phase:'result', round:picks,
+    roundWinners:rws, gameWinner:gw||'',
+    ...scoreUpdates
   });
 }
 
-function onState(s){
-  gameMode=s.mode;playerOrder=s.playerOrder;playerNames=s.playerNames;scores=s.scores;
-  if(s.phase==='waiting'){updateLobby();ss('lobby');return;}
-  if(s.phase==='picking'){
-    pickStartTime=s.pickStartTime;myChoice=null;choices={};
-    renderScores();resetBtns();ss('game');
-    const el=(Date.now()-pickStartTime)/1000,rem=Math.max(0.2,3-el);
-    startTick(rem);
-    clearTimeout(pickTimer);
-    pickTimer=setTimeout(()=>{if(!myChoice){myChoice=rnd();sendChoice(myChoice);}},Math.max(100,3300-el*1000));
-  }
-  if(s.phase==='result'){
-    clearTick();clearTimeout(pickTimer);
-    choices=s.choices||{};
-    renderResult(s.roundWinners,s.gameWinner);
-    ss('result');
-  }
-}
-
-function sendChoice(move){
-  if(isHost)choices['HOST']=move;
-  else if(hostConn&&hostConn.open)hostConn.send({type:'choice',choice:move});
-}
-
-/* TIMER */
+/* ── TIMER ── */
 function startTick(sec){
   clearTick();
-  const arc=document.getElementById('cd-arc'),num=document.getElementById('cd-num');
+  const arc=document.getElementById('cda'),num=document.getElementById('cdn');
   const end=Date.now()+sec*1000;
   function tick(){
     const r=Math.max(0,(end-Date.now())/1000);
@@ -366,92 +456,86 @@ function startTick(sec){
 }
 function clearTick(){if(tickIv){clearInterval(tickIv);tickIv=null;}}
 
-/* UI */
+/* ── UI ── */
 function updateLobby(){
-  const cnt=playerOrder.length,tot=gameMode||2;
-  const el=document.getElementById('lobby-count');if(el)el.textContent=cnt+' / '+tot+' მოთამაშე';
-  const link=location.href.split('#')[0]+'#'+roomId;
+  const tot=gameMode||2;
+  const el=document.getElementById('lobby-status');
+  if(el)el.textContent=playerOrder.length+' / '+tot+' მოთამაშე';
+  const link=location.origin+location.pathname+'#'+roomId;
   const lv=document.getElementById('share-link');if(lv)lv.textContent=link;
   const pp=document.getElementById('pills');
   if(pp){
     let h='';
     for(let i=0;i<tot;i++){
-      const id=playerOrder[i];
-      h+=id?`<div class="pill on">✓ ${playerNames[id]}</div>`:'<div class="pill off">მოლოდინი...</div>';
+      const id='p'+i, name=playerNames[id];
+      h+=name?`<div class="pill on">✓ ${name}</div>`:'<div class="pill blink">მოლოდინი...</div>';
     }
     pp.innerHTML=h;
+  }
+  // start game when full
+  if(isHost&&playerOrder.length===tot){
+    setTimeout(()=>{watchRound();startRound();},800);
   }
 }
 
 function renderScores(){
-  const mid=myId(),tgt=gameMode===2?10:5;
-  const bar=document.getElementById('scores-bar');if(!bar)return;
+  const tgt=gameMode===2?10:5;
+  const bar=document.getElementById('sbar');if(!bar)return;
   bar.innerHTML=playerOrder.map(id=>`
-    <div class="sc ${id===mid?'me':''}">
-      <div class="sc-n">${playerNames[id]}${id===mid?' ★':''}</div>
-      <div class="sc-v">${scores[id]||0}</div>
-      <div class="sc-t">/ ${tgt}</div>
+    <div class="sc ${id===myId?'me':''}">
+      <div class="scn">${playerNames[id]}${id===myId?' ★':''}</div>
+      <div class="scv">${scores[id]||0}</div>
+      <div class="sct">/ ${tgt}</div>
     </div>`).join('');
 }
 
 function resetBtns(){
-  ['rock','paper','scissors'].forEach(m=>{const b=document.getElementById('btn-'+m);if(b)b.classList.remove('sel','dis');});
-  const pl=document.getElementById('pk-lbl');if(pl)pl.textContent='აირჩიე';
-  const arc=document.getElementById('cd-arc');if(arc)arc.setAttribute('stroke-dashoffset','0');
-  const num=document.getElementById('cd-num');if(num)num.textContent='3';
+  ['rock','paper','scissors'].forEach(m=>{const b=document.getElementById('b-'+m);if(b)b.classList.remove('sel','dis');});
+  const pl=document.getElementById('pkl');if(pl)pl.textContent='აირჩიე';
+  const arc=document.getElementById('cda');if(arc)arc.setAttribute('stroke-dashoffset','0');
+  const num=document.getElementById('cdn');if(num)num.textContent='3';
 }
 
-function renderResult(rws,gw){
-  const mid=myId(),tgt=gameMode===2?10:5;
-  const rg=document.getElementById('rg'),hl=document.getElementById('rhl'),pab=document.getElementById('pab');
+function renderResult(rws,gw,picks){
+  const tgt=gameMode===2?10:5;
+  const rg=document.getElementById('rg'),hl=document.getElementById('rhl'),ab=document.getElementById('again-btn');
   if(!rg||!hl)return;
   rg.className='rg '+(gameMode===2?'p2':'p4');
   rg.innerHTML=playerOrder.map(id=>{
-    const rw=rws&&rws.includes(id),me=id===mid;
+    const rw=rws.includes(id),me=id===myId;
     return`<div class="rc ${rw?'rw':''} ${me?'me':''}">
       ${rw?'<div class="wb">+1</div>':''}
-      <div class="re">${choices[id]?MOVES[choices[id]]:'❓'}</div>
+      <div class="re">${picks[id]?MOVES[picks[id]]:'❓'}</div>
       <div class="rn">${playerNames[id]}${me?' (შენ)':''}</div>
       <div class="rs">${scores[id]||0} / ${tgt}</div>
     </div>`;
   }).join('');
-  if(gw){
-    const won=gw===mid;
-    hl.textContent=won?'🏆 გაიმარჯვე!':playerNames[gw]+' — გამარჯვებული!';
+  const gwActual=gw&&gw!==''?gw:null;
+  if(gwActual){
+    const won=gwActual===myId;
+    hl.textContent=won?'🏆 გაიმარჯვე!':playerNames[gwActual]+' — გამარჯვებული!';
     hl.className='rhl '+(won?'win':'lose');
-    pab.style.display='block';
+    ab.style.display='block';
   }else{
-    const iw=rws&&rws.includes(mid),dr=!rws||rws.length===0;
+    const iw=rws.includes(myId),dr=rws.length===0;
     if(dr){hl.textContent='ფრე';hl.className='rhl draw';}
     else if(iw){hl.textContent='✓ შენი რაუნდი';hl.className='rhl win';}
     else{hl.textContent=rws.map(id=>playerNames[id]).join(', ')+' — +1';hl.className='rhl neu';}
-    pab.style.display='none';
+    ab.style.display='none';
   }
 }
-
-/* PUBLIC */
-window.selectMode=function(mode){createGame(mode);};
-window.pick=function(move){
-  if(myChoice)return;
-  myChoice=move;sendChoice(move);
-  ['rock','paper','scissors'].forEach(m=>{const b=document.getElementById('btn-'+m);if(b){b.classList.add('dis');if(m===move)b.classList.add('sel');}});
-  const pl=document.getElementById('pk-lbl');if(pl)pl.textContent='✓ '+NAMES[move];
-  if(isHost){const all=playerOrder.every(id=>!!choices[id]);if(all){clearTimeout(pickTimer);setTimeout(resolveRound,400);}}
-};
 
 window.copyLink=function(){
   const link=document.getElementById('share-link').textContent;
   navigator.clipboard.writeText(link).then(()=>{
     const b=document.getElementById('copy-btn');
-    b.textContent='კოპირდა ✓';b.classList.add('done');
-    setTimeout(()=>{b.textContent='კოპირება';b.classList.remove('done');},2000);
+    b.textContent='✓ კოპირდა';b.classList.add('ok');
+    setTimeout(()=>{b.textContent='კოპირება';b.classList.remove('ok');},2000);
   });
 };
 
-window.addEventListener('load',()=>{
-  const h=location.hash.replace('#','').trim().toUpperCase();
-  if(h&&h.length>=4)joinGame(h);
-});
+/* ── INIT ── */
+checkConfig();
 })();
 </script>
 </body>
